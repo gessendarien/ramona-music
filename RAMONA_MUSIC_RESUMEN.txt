@@ -1,0 +1,300 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                   🎵 RAMONA MUSIC - PROYECTO COMPLETO 🎵                     ║
+║                                                                               ║
+║  Aplicación Multiplataforma para Descargar Música de YouTube a Navidrome     ║
+║  Casa OS (Web) + Android (APK)                                              ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+📋 ARCHIVOS CREADOS
+═══════════════════════════════════════════════════════════════════════════════
+
+DOCUMENTACIÓN (6 archivos)
+├─ README.md ......................... Documentación principal multiplataforma
+├─ QUICK_START.md .................... Inicio rápido en 5-10 minutos
+├─ PROJECT_SUMMARY.md ................ Resumen visual y arquitectura
+├─ FILE_STRUCTURE.md ................. Lista completa de archivos
+├─ .env.example ...................... Variables de entorno
+└─ docs/
+   ├─ INSTALLATION.md ................ Guía Casa OS paso a paso
+   ├─ ANDROID_BUILD.md ............... Compilar APK para Android
+   └─ DEVELOPMENT.md ................. Para desarrolladores
+
+BACKEND NODE.JS (API compartida)
+├─ backend/
+│  ├─ package.json ................... Dependencias Node.js
+│  ├─ Dockerfile ..................... Contenedor Docker
+│  ├─ .env.example ................... Variables de entorno
+│  └─ src/
+│     ├─ app.js ...................... Servidor Express principal
+│     ├─ controllers/
+│     │  ├─ downloadController.js .... API de descargas
+│     │  ├─ searchController.js ...... API de búsqueda
+│     │  └─ recommendationsController.js ... API recomendaciones
+│     └─ services/
+│        ├─ downloadService.js ....... Descarga con yt-dlp
+│        ├─ searchService.js ......... Búsqueda YouTube
+│        └─ recommendationsService.js . Last.fm API
+
+FRONTEND WEB (Casa OS)
+├─ web/
+│  ├─ package.json ................... Dependencias React
+│  ├─ Dockerfile ..................... Contenedor Docker + Nginx
+│  ├─ nginx.conf ..................... Configuración servidor web
+│  ├─ .env.example ................... Variables de entorno
+│  ├─ public/
+│  │  └─ index.html .................. HTML con Tailwind CSS
+│  └─ src/
+│     ├─ App.jsx ..................... Componente raíz
+│     ├─ index.js .................... Entry point
+│     ├─ components/
+│     │  ├─ Header.jsx ............... Navegación + búsqueda
+│     │  ├─ Player.jsx ............... Reproductor inferior
+│     │  ├─ TrackCard.jsx ............ Card de canción
+│     │  ├─ DownloadItem.jsx ......... Item descarga
+│     │  ├─ SearchBar.jsx ............ Buscador
+│     │  └─ GenreSelector.jsx ........ Selector de géneros
+│     ├─ pages/
+│     │  ├─ RecommendedPage.jsx ...... Página de recomendados
+│     │  └─ DownloadsPage.jsx ........ Página de descargas
+│     ├─ services/
+│     │  └─ apiService.js ............ Cliente HTTP
+│     ├─ hooks/
+│     │  ├─ useDownload.js ........... Hook descargas
+│     │  └─ useSearch.js ............. Hook búsqueda
+│     └─ styles/
+│        └─ index.css ................ Estilos globales
+
+MOBILE - REACT NATIVE (Android APK)
+├─ mobile/
+│  ├─ App.js ......................... Componente raíz
+│  ├─ app.json ....................... Configuración Expo
+│  ├─ eas.json ....................... Build EAS
+│  ├─ package.json ................... Dependencias React Native
+│  ├─ babel.config.js ................ Configuración Babel
+│  ├─ .env.example ................... Variables de entorno
+│  ├─ assets/
+│  │  ├─ icon.png .................... Ícono (192x192)
+│  │  ├─ splash.png .................. Splash (1080x1920)
+│  │  ├─ adaptive-icon.png ........... Ícono adaptativo
+│  │  └─ notification-icon.png ....... Ícono notificaciones
+│  └─ app/
+│     ├─ screens/
+│     │  ├─ RecommendedScreen.js ..... Recomendaciones
+│     │  ├─ SearchScreen.js .......... Búsqueda
+│     │  ├─ DownloadsScreen.js ....... Descargas
+│     │  ├─ SettingsScreen.js ........ Configuración
+│     │  └─ SplashLoadingScreen.js ... Pantalla carga
+│     ├─ components/
+│     │  ├─ TrackCard.js ............. Card canción
+│     │  ├─ DownloadItem.js .......... Item descarga
+│     │  ├─ GenreButton.js ........... Botón género
+│     │  ├─ LoadingSpinner.js ........ Indicador carga
+│     │  └─ EmptyState.js ............ Estado vacío
+│     └─ services/
+│        ├─ apiService.js ............ Cliente API
+│        ├─ storageService.js ........ AsyncStorage local
+│        ├─ notificationService.js ... Notificaciones
+│        └─ configService.js ......... Configuración usuario
+
+CÓDIGO COMPARTIDO
+├─ shared/
+│  ├─ apiService.js .................. Cliente HTTP (Web + Mobile)
+│  └─ constants.js ................... Constantes globales
+
+ORQUESTACIÓN
+├─ docker-compose.yml ................ Docker Compose para Casa OS
+│  ├─ Backend (Node.js)
+│  ├─ Frontend Web (React + Nginx)
+│  └─ FFmpeg (Conversión audio)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 CÓMO USAR
+═══════════════════════════════════════════════════════════════════════════════
+
+OPCIÓN 1: CASA OS (Docker)
+──────────────────────────
+1. cd /DATA/AppData
+2. git clone <repo-url> ramona-music
+3. cd ramona-music
+4. cp .env.example .env
+5. Edita .env con tu MUSIC_PATH y LASTFM_API_KEY
+6. docker-compose up -d
+7. Abre http://localhost:3000
+
+OPCIÓN 2: ANDROID (APK)
+──────────────────────
+1. cd mobile
+2. npm install
+3. eas login (crea cuenta en https://expo.dev)
+4. eas build --platform android
+5. Descarga el APK
+6. Instala en tu dispositivo Android
+7. En Ajustes, configura URL del servidor
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 REQUISITOS
+═══════════════════════════════════════════════════════════════════════════════
+
+CASA OS:
+• Docker y Docker Compose
+• Navidrome instalado
+• Carpeta de música accesible
+
+ANDROID:
+• Node.js 16+
+• Cuenta Expo (gratuita)
+• EAS CLI instalado
+• Android SDK (si compilas localmente)
+
+AMBOS:
+• API Key de Last.fm (gratuita en last.fm/api)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 CARACTERÍSTICAS
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Descargar música de YouTube y YouTube Music
+✅ Almacenamiento automático en Navidrome
+✅ Recomendaciones musicales inteligentes (Last.fm)
+✅ Búsqueda de canciones y artistas
+✅ Interfaz responsiva (Mobile + Web)
+✅ Modo oscuro (Material Design 3)
+✅ Seguimiento de descargas en tiempo real
+✅ Web en Casa OS (Docker)
+✅ App Android compilable a APK
+✅ Backend compartido entre plataformas
+✅ Sin referencias a iOS (solo Android)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📚 DOCUMENTACIÓN
+═══════════════════════════════════════════════════════════════════════════════
+
+INICIEMOS:
+  ► QUICK_START.md - Empieza en 5-10 minutos
+
+INSTALACIÓN:
+  ► docs/INSTALLATION.md - Casa OS paso a paso
+  ► docs/ANDROID_BUILD.md - Compilar APK
+
+DESARROLLO:
+  ► docs/DEVELOPMENT.md - Stack técnico
+  ► PROJECT_SUMMARY.md - Arquitectura visual
+  ► FILE_STRUCTURE.md - Todos los archivos
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🏗️ ARQUITECTURA
+═══════════════════════════════════════════════════════════════════════════════
+
+Frontend Web/Mobile → API Backend → Servicios
+                          ↓
+                  Descarga (yt-dlp)
+                  Búsqueda (YouTube)
+                  Recomendaciones (Last.fm)
+                          ↓
+                  Almacenamiento: /DATA/Media/Music/
+                  (Navidrome detecta automáticamente)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✨ STACK TECNOLÓGICO
+═══════════════════════════════════════════════════════════════════════════════
+
+BACKEND:
+  • Node.js 18+
+  • Express.js
+  • yt-dlp (YouTube)
+  • FFmpeg (Audio)
+  • Last.fm API
+  • Docker
+
+WEB:
+  • React 18
+  • Tailwind CSS
+  • Material Symbols
+  • Nginx
+  • Docker
+
+MOBILE:
+  • React Native
+  • Expo
+  • React Navigation
+  • Ionicons
+  • EAS Build
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔧 CONFIGURACIÓN RÁPIDA
+═══════════════════════════════════════════════════════════════════════════════
+
+1. OBTENER API KEY LAST.FM (GRATUITA):
+   https://www.last.fm/api/account/create
+   → Copiar API Key
+   → Agregar a .env
+
+2. CREAR CUENTA EXPO (GRATUITA):
+   https://expo.dev/signup
+   → Para compilar APK Android
+
+3. CONFIGURAR .env:
+   MUSIC_PATH=/DATA/Media/Music (tu ruta real)
+   LASTFM_API_KEY=tu_key_aqui
+   REACT_APP_API_URL=http://localhost:3001
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎨 INTERFAZ
+═══════════════════════════════════════════════════════════════════════════════
+
+Tema oscuro profesional:
+  • Color primario: #ffb3ae (Rosa/Coral)
+  • Fondo: #0e0e0e (Negro profundo)
+  • Material Design 3
+  • Completamente responsivo
+  • Casa OS: Web full responsive
+  • Android: Optimizado para móvil
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📊 ESTADÍSTICAS
+═══════════════════════════════════════════════════════════════════════════════
+
+Archivos creados: ~52
+Líneas de código: ~6000 LOC
+Documentación: ~3000 líneas
+Stack: Node.js + React + React Native + Docker
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+□ 1. Leer QUICK_START.md (5 min)
+□ 2. Instalar en Casa OS O compilar APK (10-20 min)
+□ 3. Obtener API Key Last.fm (2 min)
+□ 4. Probar descargando una canción
+□ 5. Ver música en Navidrome
+□ 6. ¡Disfrutar! 🎵
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📞 SOPORTE
+═══════════════════════════════════════════════════════════════════════════════
+
+Documentación:  /docs/
+Inicio rápido:  QUICK_START.md
+Problemas:      docs/INSTALLATION.md (Casa OS)
+                docs/ANDROID_BUILD.md (Android)
+                docs/DEVELOPMENT.md (Developers)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎉 ¡LISTO PARA EMPEZAR!
+
+Empieza con QUICK_START.md
+
+═══════════════════════════════════════════════════════════════════════════════

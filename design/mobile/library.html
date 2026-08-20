@@ -1,0 +1,102 @@
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Montserrat:wght@600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-fixed-dim": "#c6c6c7", "background": "#131313", "on-error-container": "#ffdad6", "on-tertiary-fixed": "#1a1c1c", "secondary-container": "#822c27", "tertiary-fixed": "#e2e2e2", "primary-container": "#e2e2e2", "on-primary-fixed-variant": "#454747", "surface-variant": "#353534", "on-tertiary-container": "#636565", "secondary-fixed-dim": "#ffb4ac", "surface-container-lowest": "#0e0e0e", "on-secondary-fixed": "#410003", "surface-container-highest": "#353534", "surface": "#131313", "on-primary-fixed": "#1a1c1c", "outline-variant": "#444748", "on-error": "#690005", "on-secondary-container": "#ff9e95", "on-secondary-fixed-variant": "#7e2a25", "on-tertiary": "#2f3131", "primary-fixed": "#e2e2e2", "secondary": "#ffb4ac", "on-primary-container": "#636565", "on-surface": "#e5e2e1", "inverse-primary": "#5d5f5f", "on-surface-variant": "#c4c7c8", "secondary-fixed": "#ffdad6", "primary": "#ffffff", "surface-tint": "#c6c6c7", "tertiary-container": "#e2e2e2", "error-container": "#93000a", "tertiary": "#ffffff", "surface-container-high": "#2a2a2a", "surface-container-low": "#1c1b1b", "outline": "#8e9192", "primary-fixed-dim": "#c6c6c7", "inverse-on-surface": "#313030", "surface-bright": "#3a3939", "inverse-surface": "#e5e2e1", "on-primary": "#2f3131", "error": "#ffb4ab", "on-secondary": "#601311", "on-tertiary-fixed-variant": "#454747", "on-background": "#e5e2e1", "surface-container": "#201f1f", "surface-dim": "#131313" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "section-margin": "4rem", "card-gap": "1rem", "base": "8px", "container-padding": "2rem", "gutter": "1.5rem" }, "fontFamily": { "display-lg": ["Montserrat"], "title-md": ["Montserrat"], "body-sm": ["Inter"], "label-caps": ["Montserrat"], "body-lg": ["Inter"], "headline-lg": ["Montserrat"], "headline-lg-mobile": ["Montserrat"] } } } }</script><style>@layer base { body { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; } .pb-safe { padding-bottom: env(safe-area-inset-bottom); } .pt-safe { padding-top: env(safe-area-inset-top); } } .mini-player-blur { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }</style></head><body class="bg-background text-on-background min-h-screen font-body-lg"><header class="fixed top-0 w-full z-40 bg-background/80 backdrop-blur-xl pt-safe"><div class="h-16 flex items-center justify-between px-gutter"><span class="font-display-lg text-headline-lg-mobile tracking-tighter text-primary">Ramona</span><div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center"><span class="material-symbols-outlined text-on-surface text-[18px]">person</span></div></div></header><main class="pt-16 pb-44 px-gutter min-h-screen bg-background"><div class="flex flex-col w-full gap-section-margin">
+<!-- Content Area: Empty State / Playlists -->
+<section class="flex flex-col px-gutter gap-4 mt-8">
+<div class="flex items-center justify-between">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background">Your Library</h1>
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container rounded-full text-on-surface">
+<span class="material-symbols-outlined text-[24px]">add</span>
+</button>
+</div>
+<!-- Filters/Pills -->
+<div class="flex items-center gap-2 overflow-x-auto pb-2 -mx-gutter px-gutter hide-scrollbar">
+<button class="px-4 py-2 bg-surface-container rounded-full whitespace-nowrap text-body-sm font-body-sm text-on-surface">Playlists</button>
+<button class="px-4 py-2 bg-surface-container rounded-full whitespace-nowrap text-body-sm font-body-sm text-on-surface">Artists</button>
+<button class="px-4 py-2 bg-surface-container rounded-full whitespace-nowrap text-body-sm font-body-sm text-on-surface">Albums</button>
+<button class="px-4 py-2 bg-surface-container rounded-full whitespace-nowrap text-body-sm font-body-sm text-on-surface">Downloaded</button>
+</div>
+<!-- Library Grid -->
+<div class="grid grid-cols-2 gap-4 mt-4">
+<!-- Liked Songs (Special Card) -->
+<div class="flex flex-col gap-2 group cursor-pointer">
+<div class="w-full aspect-square bg-gradient-to-br from-primary-container to-secondary-container rounded-lg flex items-center justify-center relative overflow-hidden shadow-md">
+<div class="absolute inset-0 bg-background/20 mix-blend-overlay"></div>
+<span class="material-symbols-outlined text-[48px] text-on-primary-container font-variation-fill">favorite</span>
+</div>
+<div class="flex flex-col">
+<p class="font-title-md text-title-md text-on-surface truncate">Liked Songs</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Playlist • 142 songs</p>
+</div>
+</div>
+<!-- Playlist 1 -->
+<div class="flex flex-col gap-2 group cursor-pointer">
+<div class="w-full aspect-square bg-surface-container-high rounded-lg relative overflow-hidden shadow-md" data-alt="A moody, cinematic photograph of a neon sign reflecting on a wet city street at night. The colors are deep blues, purples, and vibrant magentas, matching a 'midnight drive' aesthetic. High contrast, cinematic lighting, shot on 35mm film." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCFC-pjPoIh-_4-Ak4E-fFoVp7fwTVWmdNPzioi4GVpIZom7JQXXyQqUD7lj2x3Kum46nhdNq25x9YD-nAdfbzWaX0IwqdPB_68pyt411ypFIcJktQ4sqA28imSVP31z0pPrNMy3_hMKTt4NcSCH0Q3KoTMtD0odUdhWxnV5Hr_rwnY2wpnL3g5Iprxe60SKyy3BJzPq-cvXB4ETs4XQWu4_A861Ly-4j8Ros2tWlQh-D5zfJC1Kvwn')">
+<div class="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+</div>
+<div class="flex flex-col">
+<p class="font-title-md text-title-md text-on-surface truncate">Midnight Drive</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Playlist • Ramona</p>
+</div>
+</div>
+<!-- Artist 1 -->
+<div class="flex flex-col gap-2 group cursor-pointer items-center text-center">
+<div class="w-full aspect-square bg-surface-container rounded-full relative overflow-hidden shadow-md" data-alt="A striking black and white portrait of an indie rock musician. Deep shadows, high contrast, soft cinematic grain. The lighting highlights the subject's face against an absolute black background." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDFJVYiUV9MdJ5Xhf_zzhMMhlur0cUsqdhCvgSgI-ELUee3YfuciWh_GGBeo_XcDRfX8scF9AN53D8XzH3RYiVwV_QGRgccRvJFXx4I96OFlTQZzVtzk98m9WQQcu9JwjHUJHXeJTydtYe5uJ95p1B4heNHG-Z39z0XEOnkvcLN9K2va4YrDGiBip3jVPYZ8l6m85XwCxakZKzEpdLiC-9dfEeRf2G0j10tpdg7TEGO6uGUYzAIsKzv')">
+</div>
+<div class="flex flex-col w-full">
+<p class="font-title-md text-title-md text-on-surface truncate">Supersubmarina</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Artist</p>
+</div>
+</div>
+<!-- Album 1 -->
+<div class="flex flex-col gap-2 group cursor-pointer">
+<div class="w-full aspect-square bg-surface-container-high rounded-lg relative overflow-hidden shadow-md" data-alt="Abstract album cover art. A minimalist composition featuring geometric shapes in deep crimson and charcoal grey against a pure black background. Subtle texture of canvas or rough paper." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBKEtisb6CfhxcKZaJcwXAM2B4cXqy9eV22tovXKihB3w8p7ixwuC6v_lxCi3EKhlyRz_AtZfmOyl2MH3n20XiX8fCgDm8XuK2siAxDHWPypIDWEs9lnLOb2211j0d8u4PKs-JjiFDwJCCwm9HAGpG8Y5cvZcIeOQjaGneu4EcfsHG1UMytBi8bpu7gYnifKH2m7T-BcE5o26mTjX3n-QTT10O2Vge9hikLWu3dh10065INDhRKkWqC')">
+</div>
+<div class="flex flex-col">
+<p class="font-title-md text-title-md text-on-surface truncate">Electra Heart</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Album • MARINA</p>
+</div>
+</div>
+<!-- Playlist 2 -->
+<div class="flex flex-col gap-2 group cursor-pointer">
+<div class="w-full aspect-square bg-surface-container-high rounded-lg relative overflow-hidden shadow-md" data-alt="A tranquil nature scene at dawn. Mist rolling over dark green pine trees. Soft, cool lighting with hints of pale blue and grey. Cinematic, calm, and atmospheric." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAocIrBLQP5AZOe-JqXnlYROoQyTS2yOxeoBrwMrMkkldhdK6ho_o-YE_qpoOuZbs5mV46N_sRQ2WjoDc5No_M0Ldr-fJZbDo8egqxS2MLx03v8ADsLHspb6OZp37zlQlnScNSv5NfOcBBkk8Fzv7JcJ3_QKA0QqZXKV3iwKYpEt-6RonWWaQvb05pJTyAAJD6rNesBk8EO_uIhqoS9HfAtdUFVMPtdD_4-_4jytrPEDG18oQ22K0uJ')">
+<div class="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+</div>
+<div class="flex flex-col">
+<p class="font-title-md text-title-md text-on-surface truncate">Morning Focus</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Playlist • Spotify</p>
+</div>
+</div>
+<!-- Album 2 -->
+<div class="flex flex-col gap-2 group cursor-pointer">
+<div class="w-full aspect-square bg-surface-container-high rounded-lg relative overflow-hidden shadow-md" data-alt="A vintage, slightly blurry photo of a group of people dancing at a party in the 90s. Warm, nostalgic tones with heavy film grain. Flash photography style against a dark background." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCQ8XrIdg73MbGWgyCBM430mosxlRlky_H31qDOe7WmakAOo5JFC812tuKSgh3pc4fIWlRpBpE5-1A8F-JAloC3AcXcQNaeof_3FGed-gNmRUPoEgSFyvSB1Mts3pza2wwCbYWr7T3cecSrLUqryi98c2CdECsiMtzfpmydP5qY4MBM7u9CxI2QHS1esFouz4g7Yk9azVKtQEuF1ptWAU1ZznO3D8Iv28tNz36Y6yHy_8XrmMT5s6bZ')">
+</div>
+<div class="flex flex-col">
+<p class="font-title-md text-title-md text-on-surface truncate">Is This It</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Album • The Strokes</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Empty State (Hidden by default, shown for UX delight if no content) -->
+<!--
+  <section class="flex flex-col items-center justify-center px-gutter py-24 text-center h-[50vh]">
+    <div class="w-24 h-24 mb-6 rounded-full bg-surface-container flex items-center justify-center shadow-inner">
+      <span class="material-symbols-outlined text-[48px] text-on-surface-variant">library_music</span>
+    </div>
+    <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2">It's quiet in here</h2>
+    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-[280px]">Save your favorite playlists, albums, and artists to build your collection.</p>
+    <button class="mt-8 px-6 py-3 bg-primary text-background rounded-full font-title-md text-title-md shadow-lg">
+      Explore Music
+    </button>
+  </section>
+  -->
+</div>
+<style>
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style></main><div class="fixed bottom-20 inset-x-2 z-50 mb-2"><div class="mini-player-blur bg-surface-container-high/90 rounded-xl h-20 flex flex-col justify-center px-4 gap-1 shadow-[0_4px_24px_rgba(0,0,0,0.4)]"><div class="flex items-center gap-3 w-full"><div class="w-10 h-10 bg-surface-variant rounded flex-shrink-0 overflow-hidden"><div class="w-full h-full bg-gradient-to-br from-secondary to-on-secondary-fixed"></div></div><div class="flex-1 min-w-0"><p class="text-[14px] font-semibold text-on-surface truncate">Algo que sirva como luz</p><p class="text-[11px] text-on-surface-variant truncate">Supersubmarina</p></div><div class="flex items-center gap-1"><button class="w-8 h-8 flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined text-[20px]">shuffle</span></button><button class="w-8 h-8 flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">skip_previous</span></button><button class="w-10 h-10 flex items-center justify-center bg-primary rounded-full text-background"><span class="material-symbols-outlined text-[24px] font-variation-fill">play_arrow</span></button><button class="w-8 h-8 flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">skip_next</span></button><button class="w-8 h-8 flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined text-[20px]">repeat</span></button></div></div><div class="w-full bg-surface-variant/30 h-1 rounded-full overflow-hidden"><div class="bg-primary h-full w-1/3"></div></div></div></div><nav class="fixed bottom-0 w-full z-40 bg-surface/95 backdrop-blur-md pb-safe" data-active-classes="text-primary"><div class="h-20 flex items-center justify-around px-2"><a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-on-surface w-20" data-path="today" href="#"><span class="material-symbols-outlined">auto_awesome</span><span class="font-label-caps text-[10px] uppercase">Today</span></a><a class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-on-surface w-20" data-path="search" href="#"><span class="material-symbols-outlined">search</span><span class="font-label-caps text-[10px] uppercase">Search</span></a><a aria-current="page" class="flex flex-col items-center gap-1 w-20 text-primary" data-path="library" href="#"><span class="material-symbols-outlined">library_music</span><span class="font-label-caps text-[10px] uppercase">Library</span></a></div></nav></body></html>

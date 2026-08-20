@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+.vscode/
+backups/
+.android-env/
+.android-sdk/
+run.log
+*.log
+.DS_Store

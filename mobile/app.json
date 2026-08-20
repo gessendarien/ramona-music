@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Ramona Music",
+    "slug": "ramona-music",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "android": {
+      "package": "com.ramonamusic.app",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
+    },
+    "plugins": [],
+    "extra": {
+      "eas": {
+        "projectId": "YOUR_EAS_PROJECT_ID"
+      }
+    }
+  }
+}

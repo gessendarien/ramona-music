@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "recommended": "Hoy",
+    "player": "Buscar",
+    "library": "Librería"
+  },
+  "config": {
+    "title": "Configuración",
+    "language": "Idioma",
+    "language_desc": "Elige tu idioma preferido para la interfaz.",
+    "backup_dir": "Directorio de Backup",
+    "backup_dir_desc": "Ingresa la ruta absoluta del directorio en tu computadora donde deseas guardar los archivos de música descargados.",
+    "save_path": "Guardar Ruta",
+    "about": "Acerca de"
+  },
+  "search": {
+    "placeholder": "Buscar artistas, canciones o estilos en YouTube...",
+    "no_results": "No se encontraron resultados en YouTube.",
+    "error": "Error de red al buscar en YouTube. Inténtalo de nuevo.",
+    "prompt": "Busca una canción para empezar a escuchar.",
+    "results": "Resultados de búsqueda"
+  },
+  "library": {
+    "local_backup": "Backup Local"
+  },
+  "lyrics": {
+    "not_found": "Letra no encontrada"
+  },
+  "home": {
+    "featured": "Canciones Destacadas",
+    "no_tracks": "No se encontraron canciones."
+  },
+  "mosaic": {
+    "featured_collection": "Colección Destacada",
+    "neural_desc": "Selección curada de glitch-hop y electrónica experimental para estados de concentración.",
+    "sonic_desc": "El arte de la producción moderna."
+  },
+  "playlist": {
+    "title": "Cola de Backup",
+    "empty": "Tu cola está vacía.",
+    "empty_desc": "Agrega canciones desde el reproductor.",
+    "backup_track": "Respaldar canción",
+    "backup_all": "Respaldar Todo",
+    "backup_started": "Respaldo iniciado para:",
+    "backup_error": "Error al respaldar:",
+    "already_backed_up": "Esta canción ya está respaldada",
+    "remove_title": "¿Quitar canción?",
+    "remove_confirm": "¿Estás seguro de que quieres quitar {track} de la lista de reproducción?",
+    "cancel": "Cancelar",
+    "remove": "Eliminar"
+  },
+  "player": {
+    "add_to_playlist": "Añadir a la lista",
+    "view_playlist": "Ver lista",
+    "not_implemented": "La función '{feature}' estará disponible en futuras actualizaciones."
+  },
+  "common": {
+    "loading": "Cargando...",
+    "show_more": "Mostrar más"
+  }
+}

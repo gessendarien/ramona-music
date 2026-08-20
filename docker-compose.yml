@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # API Backend - Compartido entre Web y Mobile
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ramona-music-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MUSIC_PATH=/music
+      - LASTFM_API_KEY=${LASTFM_API_KEY:-}
+      - LOG_LEVEL=info
+    volumes:
+      # Monta la carpeta de música de Navidrome
+      - ${MUSIC_PATH:-/DATA/Media/Music}:/music
+      # Carpeta temporal para descargas
+      - ramona_downloads:/app/downloads
+      # Logs
+      - ramona_logs:/app/logs
+    networks:
+      - ramona_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "com.casa.description=Ramona Music Backend API"
+
+  # Web Frontend - Casa OS
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: ramona-music-web
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+      - REACT_APP_LASTFM_API_KEY=${LASTFM_API_KEY:-}
+    networks:
+      - ramona_network
+    depends_on:
+      backend:
+        condition: service_healthy
+    labels:
+      - "com.casa.description=Ramona Music Web Interface"
+
+networks:
+  ramona_network:
+    driver: bridge
+
+volumes:
+  ramona_downloads:
+    driver: local
+  ramona_logs:
+    driver: local

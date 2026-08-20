@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "recommended": "Today",
+    "player": "Search",
+    "library": "Library"
+  },
+  "config": {
+    "title": "Settings",
+    "language": "Language",
+    "language_desc": "Choose your preferred language for the interface.",
+    "backup_dir": "Backup Directory",
+    "backup_dir_desc": "Enter the absolute path of the directory on your computer where downloaded music files will be saved.",
+    "save_path": "Save Path",
+    "about": "About"
+  },
+  "search": {
+    "placeholder": "Search for artists, tracks, or moods on YouTube...",
+    "no_results": "No results found on YouTube.",
+    "error": "Network error searching YouTube. Try again.",
+    "prompt": "Search for a song to start playing.",
+    "results": "Search Results"
+  },
+  "library": {
+    "local_backup": "Local Backup"
+  },
+  "lyrics": {
+    "not_found": "Lyrics not found"
+  },
+  "home": {
+    "featured": "Featured Tracks",
+    "no_tracks": "No tracks found."
+  },
+  "mosaic": {
+    "featured_collection": "Featured Collection",
+    "neural_desc": "Curated selection of glitch-hop and experimental electronica for focused states.",
+    "sonic_desc": "The art of modern production."
+  },
+  "playlist": {
+    "title": "Backup Queue",
+    "empty": "Your queue is empty.",
+    "empty_desc": "Add songs from the player.",
+    "backup_track": "Backup Track",
+    "backup_all": "Backup All",
+    "backup_started": "Backup started for:",
+    "backup_error": "Error backing up:",
+    "already_backed_up": "This track is already backed up",
+    "remove_title": "Remove track?",
+    "remove_confirm": "Are you sure you want to remove {track} from the playlist?",
+    "cancel": "Cancel",
+    "remove": "Remove"
+  },
+  "player": {
+    "add_to_playlist": "Add to Playlist",
+    "view_playlist": "View Playlist",
+    "not_implemented": "The feature '{feature}' will be available in future updates."
+  },
+  "common": {
+    "loading": "Loading...",
+    "show_more": "Show more"
+  }
+}
