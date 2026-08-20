@@ -18,10 +18,10 @@ export default function Mosaic({ tracks = [], onPlay, currentTrack, isPlaying })
     if (!track) return null;
     const isCurrentTrack = currentTrack && currentTrack.id === track.id;
     return (
-      <span className="inline-flex items-center">
+      <span className="inline" title={track.title}>
         {isCurrentTrack && (
           <span 
-            className="relative inline-flex items-center justify-center mr-3 w-[1.2em] h-[1.2em] animate-[spin_3s_linear_infinite] text-rose-300"
+            className="relative inline-flex items-center justify-center mr-2 w-[1.2em] h-[1.2em] animate-[spin_3s_linear_infinite] text-rose-300 align-middle"
             style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1.2em' }}>album</span>
@@ -50,13 +50,8 @@ export default function Mosaic({ tracks = [], onPlay, currentTrack, isPlaying })
           >
             <img className="absolute inset-0 w-full h-full object-cover grayscale-0 group-hover:scale-105 transition-transform duration-700" src={t1.thumbnail} alt={t1.title} />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent md:from-black/80 md:via-transparent md:to-transparent p-6 md:p-8 flex flex-col justify-end">
-              <div className="flex items-center gap-2 mb-2 md:hidden">
-                <span className="material-symbols-outlined text-secondary text-[16px]">stars</span>
-                <span className="font-label-caps text-label-caps text-secondary uppercase tracking-widest">{t('mosaic.featured_collection') || 'Daily Mix'}</span>
-              </div>
-              <span className="hidden md:block text-primary text-xs tracking-widest uppercase mb-2">{t('mosaic.featured_collection')}</span>
-              <h2 className="font-display-lg text-headline-lg-mobile md:text-5xl md:font-black tracking-tight leading-none mb-1 md:mb-4 uppercase md:normal-case text-primary">{renderTitle(t1)}</h2>
-              <p className="font-body-lg text-body-sm text-on-surface-variant max-w-[80%] line-clamp-2 md:max-w-sm md:font-light">{t1.artist}</p>
+              <h2 className="font-display-lg text-headline-lg-mobile md:text-5xl md:font-black tracking-tight leading-none mb-1 md:mb-4 uppercase md:normal-case text-primary line-clamp-2">{renderTitle(t1)}</h2>
+              <p className="font-body-lg text-body-sm text-on-surface-variant max-w-[80%] md:max-w-sm md:font-light truncate">{t1.artist}</p>
             </div>
           </div>
         )}
@@ -72,9 +67,8 @@ export default function Mosaic({ tracks = [], onPlay, currentTrack, isPlaying })
           >
             <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src={t4.thumbnail} alt={t4.title} />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent md:bg-gradient-to-r md:from-black/80 md:to-transparent p-4 md:p-8 flex flex-col justify-end md:justify-center">
-              <span className="md:hidden inline-block px-2 py-1 bg-surface-variant/80 backdrop-blur-sm rounded-md font-label-caps text-[10px] text-on-surface uppercase mb-2 w-max">Made For You</span>
-              <h3 className="font-title-md text-title-md md:text-3xl md:font-black md:uppercase text-primary leading-tight mb-1">{renderTitle(t4)}</h3>
-              <p className="font-body-sm text-body-sm text-on-surface-variant md:font-light">{t4.artist}</p>
+              <h3 className="font-title-md text-title-md md:text-3xl md:font-black md:uppercase text-primary leading-tight mb-1 line-clamp-2">{renderTitle(t4)}</h3>
+              <p className="font-body-sm text-body-sm text-on-surface-variant md:font-light truncate">{t4.artist}</p>
             </div>
           </div>
         )}
@@ -88,7 +82,7 @@ export default function Mosaic({ tracks = [], onPlay, currentTrack, isPlaying })
           >
             <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={t2.thumbnail} alt={t2.title} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent md:bg-black/40 md:hover:bg-black/20 transition-colors p-3 md:p-6 flex flex-col justify-end">
-              <h3 className="font-title-md text-body-sm md:text-xl md:font-bold md:uppercase text-primary">{renderTitle(t2)}</h3>
+              <h3 className="font-title-md text-body-sm md:text-xl md:font-bold md:uppercase text-primary line-clamp-2">{renderTitle(t2)}</h3>
               <p className="md:hidden font-body-sm text-[11px] text-on-surface-variant mt-0.5 truncate">{t2.artist}</p>
             </div>
           </div>
@@ -103,7 +97,7 @@ export default function Mosaic({ tracks = [], onPlay, currentTrack, isPlaying })
           >
             <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={t3.thumbnail} alt={t3.title} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent md:bg-black/40 md:hover:bg-black/20 transition-colors p-3 md:p-6 flex flex-col justify-end">
-              <h3 className="font-title-md text-body-sm md:text-xl md:font-bold md:uppercase text-primary">{renderTitle(t3)}</h3>
+              <h3 className="font-title-md text-body-sm md:text-xl md:font-bold md:uppercase text-primary line-clamp-2">{renderTitle(t3)}</h3>
               <p className="md:hidden font-body-sm text-[11px] text-on-surface-variant mt-0.5 truncate">{t3.artist}</p>
             </div>
           </div>

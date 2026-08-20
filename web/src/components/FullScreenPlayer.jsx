@@ -5,19 +5,26 @@ import { useNotification } from '../contexts/NotificationContext';
 
 export default function FullScreenPlayer({ 
   currentTrack, 
-  isPlaying, 
-  onTogglePlay, 
-  progress, 
+  playlist = [],
+  isPlaying,
+  progress,
   currentSeconds,
-  onClose,
+  totalSeconds,
+  onTogglePlay,
   onSeek,
   onOpenLyrics,
   isTranslationActive,
   onToggleTranslation,
   libraryTracks = [],
+  activeDownloads = [],
   onBackupSuccess,
+  onAddToPlaylist,
   onNext,
-  onPrevious
+  onPrevious,
+  isShuffle,
+  onToggleShuffle,
+  repeatMode,
+  onToggleRepeat
 }) {
   const { t } = useLanguage();
   const { addNotification } = useNotification();
@@ -144,31 +151,33 @@ export default function FullScreenPlayer({
     }
   }, [lyrics]);
 
-  const isDownloaded = currentTrack && (currentTrack.isLocal || libraryTracks.some(l => l.originalId === currentTrack.id || l.id === currentTrack.id));
+  const activeDl = activeDownloads.find(dl => dl.trackId === currentTrack?.id);
+  const isDownloading = isBackingUp || activeDl;
+  const isDownloaded = !isDownloading && (currentTrack?.isLocal || libraryTracks.some(l => l.originalId === currentTrack?.id || l.id === currentTrack?.id));
 
   const handleDownload = async () => {
     if (isDownloaded) {
-      addNotification(t('playlist.already_backed_up') || 'Already downloaded', 'info');
+      addNotification(t('playlist.already_downloaded') || 'Already backed up', 'info');
       return;
     }
     setIsBackingUp(true);
     try {
       await backupTrack(currentTrack);
       if (onBackupSuccess) onBackupSuccess(currentTrack);
-      addNotification(t('common.download_started') || 'Descarga iniciada...', 'info');
+      addNotification(`${t('common.download_started')} ${currentTrack.title}`, 'info');
     } catch (error) {
       if (error.response && error.response.status === 409) {
         if (error.response.data && error.response.data.error === 'Already downloading this track') {
-          addNotification('Ya se está descargando...', 'info');
+          addNotification('Ya se está respaldando...', 'info');
         } else {
-          addNotification(t('playlist.already_backed_up') || 'Already downloaded', 'info');
+          addNotification(t('playlist.already_downloaded') || 'Already backed up', 'info');
         }
       } else {
         addNotification(`${t('playlist.backup_error') || 'Error downloading'} ${currentTrack.title}`, 'error');
         console.error(error);
       }
     } finally {
-      setIsBackingUp(false);
+      setTimeout(() => setIsBackingUp(false), 2000);
     }
   };
 
@@ -180,6 +189,19 @@ export default function FullScreenPlayer({
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const getDisplayDuration = () => {
+    if (totalSeconds > 0) return totalSeconds;
+    if (currentTrack?.duration) {
+      const parts = currentTrack.duration.split(':').map(Number);
+      if (parts.length === 2) return parts[0] * 60 + parts[1];
+      if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    return 0;
+  };
+
+  const durationSecs = getDisplayDuration();
+  const displayCurrent = durationSecs > 0 ? Math.min(currentSeconds, durationSecs) : currentSeconds;
 
   const handleSeek = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -209,9 +231,7 @@ export default function FullScreenPlayer({
             <span className="material-symbols-outlined text-[24px]">keyboard_arrow_down</span>
           </button>
           <span className="font-label-caps text-on-surface-variant tracking-widest text-[10px] uppercase">Now Playing</span>
-          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container/50 text-on-surface hover:bg-surface-container-high transition-colors">
-            <span className="material-symbols-outlined text-[20px]">more_vert</span>
-          </button>
+          <div className="w-10 h-10"></div>
         </div>
 
         <div className="w-full aspect-square mb-10 px-6 shrink-0">
@@ -229,33 +249,13 @@ export default function FullScreenPlayer({
         </div>
 
         <div className="flex flex-col w-full mb-8 px-6 shrink-0">
-          <div className="flex items-center justify-between w-full mb-1">
-            <div className="flex flex-col min-w-0 pr-4">
-              <h1 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface truncate mb-1">
-                {currentTrack.title}
-              </h1>
-              <h2 className="font-title-md text-on-surface-variant truncate">
-                {currentTrack.artist || currentTrack.channel || 'Unknown Artist'}
-              </h2>
-            </div>
-            {isDownloaded ? (
-              <div 
-                className="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-low text-primary flex-shrink-0 cursor-default"
-                onClick={handleDownload}
-              >
-                <span className="material-symbols-outlined text-[28px]">cloud_done</span>
-              </div>
-            ) : (
-              <button 
-                onClick={handleDownload}
-                disabled={isBackingUp}
-                className="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-low hover:bg-primary/20 text-on-surface-variant hover:text-primary flex-shrink-0 transition-transform hover:scale-110 active:scale-95"
-              >
-                <span className="material-symbols-outlined text-[28px]">
-                  {isBackingUp ? 'cloud_sync' : 'cloud_download'}
-                </span>
-              </button>
-            )}
+          <div className="flex flex-col min-w-0 w-full mb-1">
+            <h1 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface truncate mb-1">
+              {currentTrack.title}
+            </h1>
+            <h2 className="font-title-md text-on-surface-variant truncate">
+              {currentTrack.artist || currentTrack.channel || 'Unknown Artist'}
+            </h2>
           </div>
         </div>
 
@@ -270,13 +270,16 @@ export default function FullScreenPlayer({
             ></div>
           </div>
           <div className="flex justify-between w-full font-body-sm text-on-surface-variant text-[12px]">
-            <span>{formatTime(currentSeconds)}</span>
-            <span>--:--</span>
+            <span>{formatTime(displayCurrent)}</span>
+            <span>{durationSecs > 0 ? formatTime(durationSecs) : '--:--'}</span>
           </div>
         </div>
 
         <div className="w-full flex items-center justify-between px-8 mb-8 shrink-0">
-          <button className="w-12 h-12 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors">
+          <button 
+            className={`w-12 h-12 flex items-center justify-center transition-colors ${isShuffle ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+            onClick={onToggleShuffle}
+          >
             <span className="material-symbols-outlined text-[24px]">shuffle</span>
           </button>
           <button 
@@ -301,8 +304,52 @@ export default function FullScreenPlayer({
           >
             <span className="material-symbols-outlined text-[36px]" style={{ fontVariationSettings: '"FILL" 1' }}>skip_next</span>
           </button>
-          <button className="w-12 h-12 flex items-center justify-center text-secondary hover:text-secondary-fixed transition-colors">
-            <span className="material-symbols-outlined text-[24px]">repeat</span>
+          <button 
+            className={`w-12 h-12 flex items-center justify-center transition-colors ${repeatMode !== 'off' ? 'text-primary' : 'text-secondary hover:text-secondary-fixed'}`}
+            onClick={onToggleRepeat}
+          >
+            <span className="material-symbols-outlined text-[24px]">{repeatMode === 'one' ? 'repeat_one' : 'repeat'}</span>
+          </button>
+        </div>
+
+        <div className="w-full flex items-center justify-center gap-12 px-8 mb-8 shrink-0">
+          <button 
+            className={`flex flex-col items-center justify-center transition-transform hover:scale-110 active:scale-95 ${isDownloaded ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+            onClick={handleDownload}
+            disabled={isDownloading}
+          >
+            <div className={`relative w-12 h-12 rounded-full flex items-center justify-center mb-1 ${isDownloaded ? 'bg-primary/20' : 'bg-surface-container-low'}`}>
+              {isDownloading && (
+                <svg className="absolute inset-0 w-full h-full transform -rotate-90 p-[2px]" viewBox="0 0 48 48">
+                  <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeWidth="2" className="text-surface-container-high" />
+                  <circle 
+                    cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeWidth="2" 
+                    className="text-primary transition-all duration-500 ease-out"
+                    strokeDasharray={2 * Math.PI * 22}
+                    strokeDashoffset={(2 * Math.PI * 22) - (Math.max(5, activeDl?.progress || 0) / 100) * (2 * Math.PI * 22)}
+                  />
+                </svg>
+              )}
+              <span className="material-symbols-outlined text-[24px] relative z-10">
+                {isDownloaded ? 'cloud_done' : 'cloud_download'}
+              </span>
+            </div>
+          </button>
+
+          <button 
+            className={`flex flex-col items-center justify-center transition-transform hover:scale-110 active:scale-95 ${playlist.some(t => t.id === currentTrack.id) ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+            onClick={(e) => {
+              if (onAddToPlaylist && !playlist.some(t => t.id === currentTrack.id)) {
+                onAddToPlaylist(currentTrack, e);
+              }
+            }}
+            disabled={playlist.some(t => t.id === currentTrack.id)}
+          >
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 ${playlist.some(t => t.id === currentTrack.id) ? 'bg-primary/20' : 'bg-surface-container-low'}`}>
+              <span className="material-symbols-outlined text-[24px]">
+                {playlist.some(t => t.id === currentTrack.id) ? 'playlist_add_check' : 'playlist_add'}
+              </span>
+            </div>
           </button>
         </div>
 

@@ -140,29 +140,31 @@ const LyricsModal = ({ track, currentSeconds, isOpen, onClose, isTranslationActi
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-3xl bg-black/80 transition-opacity duration-300">
       <div className="absolute inset-0" onClick={onClose}></div>
-      <div className="relative w-full max-w-4xl max-h-[80vh] flex flex-col items-center">
-        
-        <div className="absolute top-0 right-0 flex items-center gap-2 z-10">
-          {lyrics.length > 0 && !lyrics[0].isPlain && (
-            <button 
-              onClick={() => handleTranslate(false)}
-              disabled={isTranslating}
-              className={`p-4 transition-colors ${isTranslationActive ? 'text-primary' : 'text-white/50 hover:text-white'}`}
-            >
-              {isTranslating ? (
-                <span className="material-symbols-outlined animate-pulse text-4xl">graphic_eq</span>
-              ) : (
-                <span className="material-symbols-outlined text-4xl">translate</span>
-              )}
-            </button>
-          )}
+      
+      {/* Top right buttons anchored to viewport */}
+      <div className="fixed top-4 right-4 flex items-center gap-2 z-[210]">
+        {lyrics.length > 0 && !lyrics[0].isPlain && (
           <button 
-            onClick={onClose}
-            className="p-4 text-white/50 hover:text-white"
+            onClick={() => handleTranslate(false)}
+            disabled={isTranslating}
+            className={`p-4 transition-colors ${isTranslationActive ? 'text-primary' : 'text-white/50 hover:text-white'}`}
           >
-            <span className="material-symbols-outlined text-4xl">close</span>
+            {isTranslating ? (
+              <span className="material-symbols-outlined animate-pulse text-4xl">graphic_eq</span>
+            ) : (
+              <span className="material-symbols-outlined text-4xl">translate</span>
+            )}
           </button>
-        </div>
+        )}
+        <button 
+          onClick={onClose}
+          className="p-4 text-white/50 hover:text-white"
+        >
+          <span className="material-symbols-outlined text-4xl">close</span>
+        </button>
+      </div>
+
+      <div className="relative w-full max-w-4xl max-h-[80vh] flex flex-col items-center mt-16 md:mt-0">
 
         <div className="text-center mb-8 shrink-0 mt-12 md:mt-0">
           <h2 className="text-3xl font-black text-white tracking-tight">{track?.title}</h2>

@@ -28,7 +28,9 @@ export const searchYouTube = async (query, source = 'youtube', limit = 20) => {
         }];
       }
     } else {
-      const result = await youtubedl(`ytsearch${limit}:${searchQuery}`, {
+      const searchPrefix = source === 'ytmusic' ? 'ytmsearch' : 'ytsearch';
+      const finalQuery = source === 'ytmusic' && !isUrl ? query : searchQuery; // Don't append "audio" to ytmsearch
+      const result = await youtubedl(`${searchPrefix}${limit}:${finalQuery}`, {
         dumpSingleJson: true,
         flatPlaylist: true,
         noWarnings: true

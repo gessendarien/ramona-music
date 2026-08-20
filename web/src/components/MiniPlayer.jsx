@@ -2,15 +2,33 @@ import React from 'react';
 import VinylIcon from './VinylIcon';
 import ScrollingText from './ScrollingText';
 
-export default function MiniPlayer({ currentTrack, isPlaying, onTogglePlay, progress, onOpenFullScreen, onOpenPlaylist, playlist = [], onNext, onPrevious }) {
-  if (!currentTrack) return null;
+export default function MiniPlayer({ currentTrack, isPlaying, onTogglePlay, progress, currentSeconds, totalSeconds, onOpenFullScreen, onOpenPlaylist, playlist = [], onNext, onPrevious }) {
+  const formatTime = (secs) => {
+    if (!secs || isNaN(secs) || secs < 0) return '0:00';
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const getDisplayDuration = () => {
+    if (totalSeconds > 0) return totalSeconds;
+    if (currentTrack?.duration) {
+      const parts = currentTrack.duration.split(':').map(Number);
+      if (parts.length === 2) return parts[0] * 60 + parts[1];
+      if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    return 0;
+  };
+
+  const durationSecs = getDisplayDuration();
+  const displayCurrent = durationSecs > 0 ? Math.min(currentSeconds, durationSecs) : currentSeconds;
 
   return (
     <div className="fixed bottom-0 left-0 w-full z-50 md:hidden animate-slide-up">
       {/* Progress Bar */}
       <div 
-        className="w-full h-[2px] bg-white/10 relative z-10 cursor-pointer"
-        onClick={onOpenFullScreen}
+        className={`w-full h-[2px] bg-white/10 relative z-10 ${currentTrack ? 'cursor-pointer' : ''}`}
+        onClick={() => currentTrack && onOpenFullScreen()}
       >
         <div 
           className="h-full bg-primary transition-all duration-200"
@@ -20,29 +38,36 @@ export default function MiniPlayer({ currentTrack, isPlaying, onTogglePlay, prog
       
       <div className="mini-player-blur bg-surface-container-high/95 backdrop-blur-xl flex items-center px-4 py-2 pb-safe shadow-[0_-4px_24px_rgba(0,0,0,0.5)] relative gap-3" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 8px)' }}>
         
-        {/* Duration below progress line on far right */}
-        <div className="absolute top-0.5 right-2 text-[10px] text-on-surface-variant/70 font-mono italic">
-          {currentTrack.duration}
+        {/* Current Time on far left */}
+        <div className="absolute top-0.5 left-2 text-[10px] text-on-surface-variant/70 font-mono font-medium tracking-wider select-none">
+          {formatTime(displayCurrent)}
+        </div>
+
+        {/* Duration on far right */}
+        <div className="absolute top-0.5 right-2 text-[10px] text-on-surface-variant/70 font-mono font-medium tracking-wider select-none">
+          {durationSecs > 0 ? formatTime(durationSecs) : '--:--'}
         </div>
 
         {/* Left Column: Large Thumbnail */}
         <div 
-          className="w-16 h-16 bg-surface-variant rounded-md flex-shrink-0 overflow-hidden shadow-sm cursor-pointer"
-          onClick={onOpenFullScreen}
+          className={`w-16 h-16 bg-surface-variant rounded-md flex-shrink-0 overflow-hidden shadow-sm ${currentTrack ? 'cursor-pointer' : ''}`}
+          onClick={() => currentTrack && onOpenFullScreen()}
         >
-          {currentTrack.thumbnail ? (
+          {currentTrack?.thumbnail ? (
             <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-secondary to-on-secondary-fixed"></div>
+            <div className="w-full h-full bg-gradient-to-br from-secondary to-on-secondary-fixed flex items-center justify-center">
+              <span className="material-symbols-outlined text-on-secondary text-2xl opacity-50">music_note</span>
+            </div>
           )}
         </div>
 
         {/* Right Column: Text (Top) + Controls (Bottom) */}
         <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
           {/* Top Row: Song Info */}
-          <div className="w-full overflow-hidden cursor-pointer" onClick={onOpenFullScreen}>
-            <ScrollingText text={currentTrack.title} className="text-[13px] font-bold text-on-surface leading-tight mb-0.5" />
-            <ScrollingText text={currentTrack.artist || currentTrack.channel} className="text-[10px] text-on-surface-variant uppercase tracking-widest" />
+          <div className={`w-full overflow-hidden ${currentTrack ? 'cursor-pointer' : ''}`} onClick={() => currentTrack && onOpenFullScreen()}>
+            <ScrollingText text={currentTrack ? currentTrack.title : '---'} className="text-[13px] font-bold text-on-surface leading-tight mb-0.5" />
+            <ScrollingText text={currentTrack ? (currentTrack.artist || currentTrack.channel) : '---'} className="text-[10px] text-on-surface-variant uppercase tracking-widest" />
           </div>
 
           {/* Bottom Row: Controls */}
@@ -58,8 +83,9 @@ export default function MiniPlayer({ currentTrack, isPlaying, onTogglePlay, prog
               </button>
               
               <button 
-                className="relative rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-transform overflow-hidden active:scale-95"
-                onClick={(e) => { e.stopPropagation(); onTogglePlay(); }}
+                className={`relative rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-transform overflow-hidden ${currentTrack ? 'active:scale-95' : 'opacity-50'}`}
+                onClick={(e) => { e.stopPropagation(); if (currentTrack) onTogglePlay(); }}
+                disabled={!currentTrack}
               >
                 <div className="absolute inset-0 w-full h-full rounded-full overflow-hidden">
                   <VinylIcon 

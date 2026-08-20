@@ -52,6 +52,13 @@ export const getBackupStatus = async () => {
   return response.data;
 };
 
+export const deleteTracks = async (filePaths) => {
+  const response = await axios.delete(`${API_URL}/backup`, {
+    data: { filePaths }
+  });
+  return response.data;
+};
+
 export const updateMetadata = async (data) => {
   const response = await api.post('/backup/metadata', data);
   return response.data;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { searchCover } from '../services/apiService';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -11,6 +11,18 @@ export default function MetadataModal({ isOpen, onClose, track, onSave }) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCoverUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   useEffect(() => {
     if (track) {
@@ -106,6 +118,21 @@ export default function MetadataModal({ isOpen, onClose, track, onSave }) {
               <span className="material-symbols-outlined mr-2 text-sm">image_search</span>
               {isSearching ? 'Searching...' : 'Find Cover'}
             </button>
+            <div className="text-center w-full mt-1">
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileUpload} 
+                accept="image/*" 
+                className="hidden" 
+              />
+              <span 
+                onClick={() => fileInputRef.current?.click()} 
+                className="text-xs text-primary hover:underline cursor-pointer"
+              >
+                Upload your own cover
+              </span>
+            </div>
           </div>
 
           {/* Right Column: Inputs */}

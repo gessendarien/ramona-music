@@ -9,7 +9,7 @@ import PlaylistPanel from './components/PlaylistPanel';
 import MetadataModal from './components/MetadataModal';
 import MobileHeader from './components/MobileHeader';
 import MobileNav from './components/MobileNav';
-import { getRecommendations, searchTracks, getLibraryTracks, getBackupStatus, updateMetadata, getConfig, saveConfig, API_URL } from './services/apiService';
+import { getRecommendations, searchTracks, getLibraryTracks, getBackupStatus, updateMetadata, getConfig, saveConfig, API_URL, deleteTracks } from './services/apiService';
 import { useLanguage } from './contexts/LanguageContext';
 
 function App() {
@@ -23,12 +23,19 @@ function App() {
   const [appConfig, setAppConfig] = useState(null);
   
   const [playlist, setPlaylist] = useState([]);
+  const [isShuffle, setIsShuffle] = useState(false);
+  const [repeatMode, setRepeatMode] = useState('off'); // 'off', 'all', 'one'
   const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
   const [animations, setAnimations] = useState([]);
   const [activeDownloads, setActiveDownloads] = useState([]);
+  const [animatingDownloads, setAnimatingDownloads] = useState([]);
   const activeSearchSourceRef = useRef(null);
   const [librarySortMode, setLibrarySortMode] = useState('recent'); // 'recent' | 'az' | 'artist'
   const [editingTrack, setEditingTrack] = useState(null);
+  const [isLibrarySelectMode, setIsLibrarySelectMode] = useState(false);
+  const [librarySelectedTracks, setLibrarySelectedTracks] = useState(new Set());
+  const [isDeletingLibrary, setIsDeletingLibrary] = useState(false);
+  const [showLibraryDeleteConfirm, setShowLibraryDeleteConfirm] = useState(false);
 
   const [playerSearch, setPlayerSearch] = useState({ query: '', results: [], isSearching: false, error: '' });
   const [librarySearch, setLibrarySearch] = useState({ query: '', results: [], isSearching: false, error: '' });
@@ -65,11 +72,30 @@ function App() {
       try {
         const data = await getBackupStatus();
         if (data && data.activeDownloads) {
-          setActiveDownloads(data.activeDownloads);
-          // If a download just finished and we are in library, refresh library
-          if (activeDownloads.length > 0 && data.activeDownloads.length < activeDownloads.length) {
-            if (activeTab === 'library') fetchLibrary();
-          }
+          setActiveDownloads(prev => {
+            const finished = prev.filter(oldDl => !data.activeDownloads.some(newDl => newDl.trackId === oldDl.trackId));
+            if (finished.length > 0) {
+              const anims = finished.map(f => ({ ...f, progress: 100 }));
+              setAnimatingDownloads(prevAnim => [...prevAnim, ...anims]);
+              setTimeout(() => {
+                setAnimatingDownloads(prevAnim => prevAnim.filter(a => !anims.some(newA => newA.trackId === a.trackId)));
+              }, 500);
+
+              setLibraryTracks(libPrev => {
+                const newTracks = finished.map(f => ({
+                  id: f.trackId,
+                  originalId: f.trackId,
+                  title: f.title,
+                  artist: f.artist,
+                  isLocal: true
+                }));
+                const filteredLib = libPrev.filter(l => !finished.some(f => f.trackId === l.originalId));
+                return [...newTracks, ...filteredLib];
+              });
+              setTimeout(() => fetchLibrary(), 2000);
+            }
+            return data.activeDownloads;
+          });
         }
       } catch (e) {
         console.error("Failed to check backup status", e);
@@ -81,12 +107,12 @@ function App() {
     return () => clearInterval(interval);
   }, [activeDownloads.length, activeTab]);
 
-  const handleSearch = (query, source = 'youtube') => {
+  const handleSearch = (query, source = 'youtube', displayQuery = query) => {
     if (!query) return;
     const isPlayer = activeTab === 'player';
     const setSectionSearch = isPlayer ? setPlayerSearch : setLibrarySearch;
     
-    setSectionSearch(prev => ({ ...prev, isSearching: true, query, error: '', results: [] }));
+    setSectionSearch(prev => ({ ...prev, isSearching: true, query: displayQuery, error: '', results: [] }));
     
     if (activeSearchSourceRef.current) {
       activeSearchSourceRef.current.close();
@@ -145,18 +171,40 @@ function App() {
     } else {
       setCurrentTrack(track);
       setIsPlaying(true);
+      
+      if (activeTab === 'library') {
+        setPlaylist(libraryTracks);
+      } else if (activeTab === 'player') {
+        setPlaylist(playerSearch.results);
+      } else if (activeTab === 'recommended') {
+        setPlaylist(recommendations || []);
+      }
     }
   };
 
   const handleNext = () => {
     if (!currentTrack || playlist.length === 0) return;
+    
+    if (isShuffle && playlist.length > 1) {
+      const available = playlist.filter(t => t.id !== currentTrack.id);
+      const randomTrack = available[Math.floor(Math.random() * available.length)];
+      setCurrentTrack(randomTrack);
+      setIsPlaying(true);
+      return;
+    }
+
     const currentIndex = playlist.findIndex(t => t.id === currentTrack.id);
     if (currentIndex !== -1 && currentIndex < playlist.length - 1) {
       setCurrentTrack(playlist[currentIndex + 1]);
       setIsPlaying(true);
     } else if (playlist.length > 0) {
-      setCurrentTrack(playlist[0]);
-      setIsPlaying(true);
+      if (repeatMode === 'all' || isShuffle) {
+        setCurrentTrack(playlist[0]);
+        setIsPlaying(true);
+      } else {
+        setIsPlaying(false);
+        setCurrentTrack(playlist[0]);
+      }
     }
   };
 
@@ -167,8 +215,10 @@ function App() {
       setCurrentTrack(playlist[currentIndex - 1]);
       setIsPlaying(true);
     } else if (playlist.length > 0) {
-      setCurrentTrack(playlist[playlist.length - 1]);
-      setIsPlaying(true);
+      if (repeatMode === 'all') {
+        setCurrentTrack(playlist[playlist.length - 1]);
+        setIsPlaying(true);
+      }
     }
   };
 
@@ -264,7 +314,11 @@ function App() {
   };
 
   const handleRemoveFromPlaylist = (trackId) => {
-    setPlaylist(prev => prev.filter(t => t.id !== trackId));
+    if (Array.isArray(trackId)) {
+      setPlaylist(prev => prev.filter(t => !trackId.includes(t.id)));
+    } else {
+      setPlaylist(prev => prev.filter(t => t.id !== trackId));
+    }
   };
 
   const handleSaveMetadata = async (metadata) => {
@@ -273,6 +327,34 @@ function App() {
       fetchLibrary(); // Refresh library after save
     } catch (e) {
       throw e;
+    }
+  };
+
+  const handleDeleteLibraryTracks = async () => {
+    if (librarySelectedTracks.size === 0) return;
+    
+    setIsDeletingLibrary(true);
+    try {
+      const tracksToDelete = libraryTracks.filter(t => librarySelectedTracks.has(t.id));
+      const filePaths = tracksToDelete.map(t => t.filePath).filter(Boolean);
+      
+      if (filePaths.length > 0) {
+        await deleteTracks(filePaths);
+      }
+      
+      setLibraryTracks(prev => prev.filter(t => !librarySelectedTracks.has(t.id)));
+      
+      // If any of the deleted tracks are in the current playlist, remove them
+      setPlaylist(prev => prev.filter(t => !librarySelectedTracks.has(t.id)));
+      
+      setLibrarySelectedTracks(new Set());
+      setIsLibrarySelectMode(false);
+      addNotification(t('library.deleted_success') || 'Tracks deleted successfully', 'success');
+    } catch (e) {
+      console.error(e);
+      addNotification(t('library.deleted_error') || 'Failed to delete tracks', 'error');
+    } finally {
+      setIsDeletingLibrary(false);
     }
   };
 
@@ -371,7 +453,30 @@ function App() {
         )}
 
         {activeTab === 'library' && !librarySearch.isSearching && (
-          <div className="mb-4 flex justify-end">
+          <div className="mb-4 flex justify-end items-center gap-2">
+            {isLibrarySelectMode && (
+              <>
+                <span className="text-sm text-on-surface-variant font-bold mr-2">{librarySelectedTracks.size} selected</span>
+                <button 
+                  onClick={() => setShowLibraryDeleteConfirm(true)}
+                  disabled={librarySelectedTracks.size === 0 || isDeletingLibrary}
+                  className="bg-error/10 hover:bg-error/20 text-error text-sm px-4 py-2 rounded-lg transition-colors flex items-center disabled:opacity-50"
+                  title="Delete Selected"
+                >
+                  <span className="material-symbols-outlined text-sm mr-1">delete</span>
+                  {isDeletingLibrary ? 'Deleting...' : 'Delete'}
+                </button>
+                <button 
+                  onClick={() => {
+                    setIsLibrarySelectMode(false);
+                    setLibrarySelectedTracks(new Set());
+                  }}
+                  className="bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant text-sm px-4 py-2 rounded-lg transition-colors mr-2"
+                >
+                  Cancel
+                </button>
+              </>
+            )}
             <select 
               className="bg-surface-container-high text-on-surface-variant text-sm px-4 py-2 rounded-lg outline-none cursor-pointer hover:bg-surface-container-highest transition-colors"
               value={librarySortMode}
@@ -398,6 +503,24 @@ function App() {
             playlist={playlist} 
             currentTrack={currentTrack}
             isPlaying={isPlaying}
+            isSelectMode={isLibrarySelectMode}
+            selectedTracks={librarySelectedTracks}
+            onToggleSelect={(trackId) => {
+              setLibrarySelectedTracks(prev => {
+                const newSet = new Set(prev);
+                if (newSet.has(trackId)) {
+                  newSet.delete(trackId);
+                  if (newSet.size === 0) setIsLibrarySelectMode(false);
+                } else {
+                  newSet.add(trackId);
+                }
+                return newSet;
+              });
+            }}
+            onLongPress={(trackId) => {
+              setIsLibrarySelectMode(true);
+              setLibrarySelectedTracks(new Set([trackId]));
+            }}
           />
           </>
         )}
@@ -416,18 +539,52 @@ function App() {
             {!currentSearchState.isSearching && currentSearchState.results.length > 0 && (
               <div className="mb-4">
                 <div className="flex justify-end mb-2">
-                  <button 
-                    onClick={(e) => handleAddAllToPlaylist(currentSearchState.results, e)}
-                    className="flex items-center justify-center w-12 h-12 rounded-full bg-surface-container-high hover:bg-primary/20 text-on-surface-variant hover:text-primary transition-colors shadow-sm"
-                    title="Añadir todas"
-                  >
-                    <span className="material-symbols-outlined">playlist_add</span>
-                  </button>
+                  {(() => {
+                    const allAdded = currentSearchState.results.length > 0 && currentSearchState.results.every(track => playlist.some(t => t.id === track.id));
+                    return (
+                      <button 
+                        onClick={(e) => !allAdded && handleAddAllToPlaylist(currentSearchState.results, e)}
+                        className={`flex items-center justify-center w-12 h-12 rounded-full transition-colors shadow-sm ${allAdded ? 'bg-primary/20 text-primary cursor-default' : 'bg-surface-container-high hover:bg-primary/20 text-on-surface-variant hover:text-primary'}`}
+                        title={allAdded ? "Todas añadidas" : "Añadir todas"}
+                      >
+                        <span className="material-symbols-outlined">{allAdded ? 'playlist_add_check' : 'playlist_add'}</span>
+                      </button>
+                    );
+                  })()}
                 </div>
                 <TrackList tracks={currentSearchState.results} onPlay={handlePlay} onAdd={handleAddToPlaylist} playlist={playlist} currentTrack={currentTrack} isPlaying={isPlaying} />
               </div>
             )}
           </>
+        )}
+
+        {/* Library Delete Confirmation Modal Overlay */}
+        {showLibraryDeleteConfirm && (
+          <div className="absolute inset-0 bg-neutral-950/80 backdrop-blur-md flex items-center justify-center p-6 z-[60]">
+            <div className="bg-surface-container-highest border border-white/10 rounded-2xl p-6 shadow-2xl max-w-sm w-full animate-in fade-in zoom-in duration-200">
+              <h3 className="text-lg font-bold text-on-surface mb-2">{t('library.remove_selected_title') || 'Remove Tracks'}</h3>
+              <p className="text-sm text-on-surface-variant mb-6">
+                {(t('library.remove_selected_confirm') || `Are you sure you want to delete {count} selected track(s) from the library?`).replace('{count}', librarySelectedTracks.size)}
+              </p>
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={() => setShowLibraryDeleteConfirm(false)}
+                  className="px-4 py-2 rounded-full text-sm font-semibold text-on-surface hover:bg-surface-container-low transition-colors"
+                >
+                  {t('playlist.cancel')}
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowLibraryDeleteConfirm(false);
+                    handleDeleteLibraryTracks();
+                  }}
+                  className="px-4 py-2 rounded-full text-sm font-semibold bg-error text-on-error hover:bg-error/90 transition-colors"
+                >
+                  {t('playlist.remove')}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </main>
       <PlayerBar 
@@ -441,6 +598,13 @@ function App() {
         onOpenPlaylist={() => setIsPlaylistOpen(true)}
         playlist={playlist}
         libraryTracks={libraryTracks}
+        activeDownloads={[...activeDownloads, ...animatingDownloads]}
+        isShuffle={isShuffle}
+        onToggleShuffle={() => setIsShuffle(!isShuffle)}
+        repeatMode={repeatMode}
+        onToggleRepeat={() => {
+          setRepeatMode(prev => prev === 'off' ? 'all' : prev === 'all' ? 'one' : 'off');
+        }}
         onBackupSuccess={() => {
           getBackupStatus().then(data => data && setActiveDownloads(data.activeDownloads));
           getLibraryTracks().then(data => {
@@ -464,6 +628,7 @@ function App() {
         isPlaying={isPlaying}
         onPlay={handlePlay}
         libraryTracks={libraryTracks}
+        activeDownloads={activeDownloads}
         onBackupSuccess={() => {
           // Eagerly update active downloads logic if needed
           getBackupStatus().then(data => data && setActiveDownloads(data.activeDownloads));

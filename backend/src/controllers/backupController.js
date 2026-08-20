@@ -11,11 +11,16 @@ const configFilePath = path.join(process.cwd(), 'ramona-config.json');
 export const activeDownloads = new Map();
 
 const getBackupPath = async () => {
+  let defaultPath = path.join(process.cwd(), 'downloads');
+  if (process.platform === 'android') {
+    defaultPath = '/storage/emulated/0/ramona/backups/';
+  }
+
   if (await fs.pathExists(configFilePath)) {
     const config = await fs.readJson(configFilePath);
-    return config.backupPath || path.join(process.cwd(), 'downloads');
+    return config.backupPath || defaultPath;
   }
-  return path.join(process.cwd(), 'downloads');
+  return defaultPath;
 };
 
 // Build yt-dlp options, optionally adding cookies file if configured
@@ -28,8 +33,15 @@ const getYtdlpOptions = async (baseOptions) => {
       if (config.cookiesFile && await fs.pathExists(config.cookiesFile)) {
         opts.cookies = config.cookiesFile;
       }
+      if (config.downloadQuality === 'lowestaudio') {
+        opts.audioQuality = 9;
+      } else {
+        opts.audioQuality = 0;
+      }
+    } else {
+      opts.audioQuality = 0;
     }
-  } catch (e) {
+  } catch (error) {
     // Ignore config read errors
   }
   return opts;
@@ -236,6 +248,30 @@ export const streamTrack = async (req, res) => {
   }
 };
 
+export const deleteTracks = async (req, res) => {
+  try {
+    const { filePaths } = req.body;
+    if (!filePaths || !Array.isArray(filePaths)) {
+      return res.status(400).json({ error: 'filePaths array is required' });
+    }
+
+    const backupDir = await getBackupPath();
+    
+    for (const file of filePaths) {
+      if (file && file.startsWith(backupDir)) {
+        if (await fs.pathExists(file)) {
+          await fs.remove(file);
+        }
+      }
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting tracks:', error);
+    res.status(500).json({ error: 'Failed to delete tracks' });
+  }
+};
+
 export const updateMetadata = async (req, res) => {
   const { filePath, title, artist, album, coverUrl } = req.body;
   if (!filePath || !(await fs.pathExists(filePath))) {
@@ -249,13 +285,25 @@ export const updateMetadata = async (req, res) => {
     if (album) tags.album = album;
 
     if (coverUrl) {
-      const response = await axios.get(coverUrl, { responseType: 'arraybuffer' });
-      tags.image = {
-        mime: response.headers['content-type'] || 'image/jpeg',
-        type: { id: 3, name: 'front cover' },
-        description: 'Cover',
-        imageBuffer: Buffer.from(response.data)
-      };
+      if (coverUrl.startsWith('data:image/')) {
+        const matches = coverUrl.match(/^data:(image\/\w+);base64,(.+)$/);
+        if (matches) {
+          tags.image = {
+            mime: matches[1],
+            type: { id: 3, name: 'front cover' },
+            description: 'Cover',
+            imageBuffer: Buffer.from(matches[2], 'base64')
+          };
+        }
+      } else {
+        const response = await axios.get(coverUrl, { responseType: 'arraybuffer' });
+        tags.image = {
+          mime: response.headers['content-type'] || 'image/jpeg',
+          type: { id: 3, name: 'front cover' },
+          description: 'Cover',
+          imageBuffer: Buffer.from(response.data)
+        };
+      }
     }
 
     const success = nodeID3.update(tags, filePath);

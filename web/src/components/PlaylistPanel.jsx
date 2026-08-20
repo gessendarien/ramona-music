@@ -1,15 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { backupTrack } from '../services/apiService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useNotification } from '../contexts/NotificationContext';
 import VinylIcon from './VinylIcon';
 
-export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack, isPlaying: globalIsPlaying, onPlay, libraryTracks = [], onBackupSuccess, onRemove, onClearPlaylist }) {
+export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack, isPlaying: globalIsPlaying, onPlay, libraryTracks = [], activeDownloads = [], onBackupSuccess, onRemove, onClearPlaylist }) {
   const { t } = useLanguage();
   const { addNotification } = useNotification();
   const [backingUp, setBackingUp] = useState({});
   const [trackToRemove, setTrackToRemove] = useState(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedTracks, setSelectedTracks] = useState(new Set());
+  const [showDeleteSelectedConfirm, setShowDeleteSelectedConfirm] = useState(false);
+  const touchTimer = useRef(null);
+  const longPressTriggered = useRef(false);
+
+  const handlePressStart = (track) => {
+    if (isSelectMode) return;
+    touchTimer.current = setTimeout(() => {
+      longPressTriggered.current = true;
+      setIsSelectMode(true);
+      setSelectedTracks(new Set([track.id]));
+    }, 600);
+  };
+
+  const handlePressEnd = () => {
+    if (touchTimer.current) clearTimeout(touchTimer.current);
+  };
 
   const handleBackup = async (track) => {
     setBackingUp(prev => ({ ...prev, [track.id]: true }));
@@ -28,7 +46,7 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
         console.error(error);
       }
     } finally {
-      setBackingUp(prev => ({ ...prev, [track.id]: false }));
+      setTimeout(() => setBackingUp(prev => ({ ...prev, [track.id]: false })), 2000);
     }
   };
 
@@ -66,11 +84,30 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
             {t('playlist.title')}
           </h2>
           <div className="flex items-center space-x-2">
-            {playlist.length > 0 && (
+            {isSelectMode && (
+              <button 
+                onClick={() => {
+                  setIsSelectMode(false);
+                  setSelectedTracks(new Set());
+                }} 
+                className="text-sm font-bold text-primary mr-2"
+              >
+                {t('playlist.cancel')}
+              </button>
+            )}
+            {isSelectMode && selectedTracks.size > 0 ? (
+              <button 
+                onClick={() => setShowDeleteSelectedConfirm(true)} 
+                className="p-2 hover:bg-error/20 rounded-full transition-colors text-error"
+                title={t('playlist.remove_selected_title')}
+              >
+                <span className="material-symbols-outlined">delete</span>
+              </button>
+            ) : playlist.length > 0 && !isSelectMode && (
               <button 
                 onClick={() => setShowClearConfirm(true)} 
                 className="p-2 hover:bg-error/20 rounded-full transition-colors text-on-surface-variant hover:text-error"
-                title="Clear Playlist"
+                title={t('playlist.clear_all_title')}
               >
                 <span className="material-symbols-outlined">delete_sweep</span>
               </button>
@@ -93,13 +130,54 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
               {playlist.map(track => {
                 const isThisTrackCurrent = currentTrack?.id === track.id;
                 const isThisTrackPlaying = isThisTrackCurrent && globalIsPlaying;
-                const isDownloaded = track.isLocal || libraryTracks.some(l => l.originalId === track.id || l.id === track.id);
+                const isDownloading = backingUp[track.id] || activeDownloads?.some(dl => dl.trackId === track.id);
+                const isDownloaded = !isDownloading && (track.isLocal || libraryTracks.some(l => l.originalId === track.id || l.id === track.id));
                 
                 return (
-                <div key={track.id} className="p-4 flex items-center hover:bg-surface-container-low transition-colors group">
+                <div 
+                  key={track.id} 
+                  className={`p-4 flex items-center hover:bg-surface-container-low transition-colors group ${selectedTracks.has(track.id) ? 'bg-primary/10' : ''}`}
+                  onMouseDown={() => handlePressStart(track)}
+                  onMouseUp={handlePressEnd}
+                  onMouseLeave={handlePressEnd}
+                  onTouchStart={() => handlePressStart(track)}
+                  onTouchEnd={handlePressEnd}
+                  onTouchCancel={handlePressEnd}
+                  onClick={(e) => {
+                    if (longPressTriggered.current) {
+                      longPressTriggered.current = false;
+                      return;
+                    }
+                    if (isSelectMode) {
+                      setSelectedTracks(prev => {
+                        const newSet = new Set(prev);
+                        if (newSet.has(track.id)) {
+                          newSet.delete(track.id);
+                          if (newSet.size === 0) setIsSelectMode(false);
+                        } else {
+                          newSet.add(track.id);
+                        }
+                        return newSet;
+                      });
+                    }
+                  }}
+                >
+                  {isSelectMode && (
+                    <div className="mr-4 flex-shrink-0 flex items-center justify-center">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedTracks.has(track.id)}
+                        readOnly
+                        className="w-5 h-5 accent-primary cursor-pointer pointer-events-none"
+                      />
+                    </div>
+                  )}
                   <div 
-                    className="relative w-12 h-12 rounded-lg overflow-hidden bg-surface-container-high mr-4 flex-shrink-0 cursor-pointer"
-                    onClick={() => onPlay && onPlay(track)}
+                    className={`relative w-12 h-12 rounded-lg overflow-hidden bg-surface-container-high mr-4 flex-shrink-0 ${isSelectMode ? 'cursor-default' : 'cursor-pointer'}`}
+                    onClick={(e) => {
+                      if (!isSelectMode && onPlay) onPlay(track);
+                      if (isSelectMode) e.stopPropagation();
+                    }}
                   >
                     <img className={`w-full h-full object-cover transition-opacity duration-300 md:group-hover:opacity-50 ${isThisTrackCurrent ? 'opacity-50' : ''}`} src={track.thumbnail || 'https://via.placeholder.com/150/000000/ffb3ae?text=Track'} alt={track.title} />
                     <div className={`absolute inset-0 flex items-center justify-center text-white transition-opacity duration-300 md:group-hover:opacity-100 hover:text-primary ${isThisTrackCurrent ? 'opacity-100' : 'opacity-0 md:opacity-0'}`}>
@@ -108,43 +186,65 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
                       </span>
                     </div>
                   </div>
-                  <div className="flex-grow min-w-0 pr-4">
+                  <div 
+                    className={`flex-grow min-w-0 pr-4 ${!isSelectMode ? 'cursor-pointer hover:opacity-80' : ''}`}
+                    onClick={(e) => {
+                      if (!isSelectMode && onPlay) {
+                        e.stopPropagation();
+                        onPlay(track);
+                      }
+                    }}
+                  >
                     <h4 className={`text-sm font-bold truncate transition-colors ${isThisTrackCurrent ? 'text-primary' : 'text-on-surface'}`}>{track.title}</h4>
                     <p className="text-xs text-on-surface-variant font-light truncate">{track.artist || track.channel}</p>
                   </div>
-                  <div className="flex items-center space-x-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-                    {isDownloaded ? (
-                      <div 
-                        className="p-2 text-primary rounded-full flex-shrink-0 cursor-default"
-                        title="Already Downloaded"
-                      >
-                        <span className="material-symbols-outlined text-sm">cloud_done</span>
-                      </div>
-                    ) : (
-                      <button 
-                        onClick={() => handleBackup(track)}
-                        disabled={backingUp[track.id]}
-                        className="p-2 hover:bg-primary/20 text-on-surface-variant hover:text-primary rounded-full transition-colors flex-shrink-0"
-                        title={t('playlist.backup_track')}
-                      >
-                        <span className="material-symbols-outlined text-sm">
-                          {backingUp[track.id] ? 'cloud_sync' : 'cloud_download'}
-                        </span>
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => setTrackToRemove(track)}
-                      className="p-2 hover:bg-error/20 text-on-surface-variant hover:text-error rounded-full transition-colors flex-shrink-0"
-                      title="Remove"
-                    >
-                      <span className="material-symbols-outlined text-sm">delete</span>
-                    </button>
-                  </div>
                   
                   {/* Playing Indicator */}
-                  <div className={`ml-2 transition-all duration-500 ${isThisTrackCurrent ? 'opacity-100 scale-100 w-8 h-8' : 'opacity-0 scale-50 w-0 h-8 ml-0 overflow-hidden'}`}>
+                  <div className={`mr-2 transition-all duration-500 flex-shrink-0 ${isThisTrackCurrent ? 'opacity-100 scale-100 w-8 h-8' : 'opacity-0 scale-50 w-0 h-8 mr-0 overflow-hidden'}`}>
                     {isThisTrackCurrent && <VinylIcon thumbnail={track.thumbnail} isPlaying={globalIsPlaying} className="w-8 h-8 shadow-sm" />}
                   </div>
+                  {!isSelectMode && (
+                    <div className="flex items-center space-x-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                      {isDownloaded ? (
+                        <button 
+                          onClick={() => addNotification(t('playlist.already_downloaded') || 'Already backed up', 'info')}
+                          className="p-2 text-primary hover:bg-primary/10 rounded-full flex-shrink-0 transition-colors cursor-pointer"
+                          title="Already Backed Up"
+                        >
+                          <span className="material-symbols-outlined text-sm">cloud_done</span>
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => handleBackup(track)}
+                          disabled={isDownloading}
+                          className="p-2 relative hover:bg-primary/20 text-on-surface-variant hover:text-primary rounded-full transition-colors flex-shrink-0"
+                          title={t('playlist.backup_track')}
+                        >
+                          {isDownloading && (
+                            <svg className="absolute inset-0 w-full h-full transform -rotate-90 p-[2px]" viewBox="0 0 36 36">
+                              <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="2" className="text-surface-container-high" />
+                              <circle 
+                                cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="2" 
+                                className="text-primary transition-all duration-500 ease-out"
+                                strokeDasharray={2 * Math.PI * 16}
+                                strokeDashoffset={(2 * Math.PI * 16) - (Math.max(5, activeDownloads?.find(dl => dl.trackId === track.id)?.progress || 0) / 100) * (2 * Math.PI * 16)}
+                              />
+                            </svg>
+                          )}
+                          <span className="material-symbols-outlined text-sm relative z-10 block">
+                            cloud_download
+                          </span>
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => setTrackToRemove(track)}
+                        className="p-2 hover:bg-error/20 text-on-surface-variant hover:text-error rounded-full transition-colors flex-shrink-0"
+                        title="Remove"
+                      >
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                       </button>
+                    </div>
+                  )}
                 </div>
               )})}
             </div>
@@ -177,21 +277,51 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
               </div>
             </div>
           )}
+          {/* Delete Selected Confirmation Modal Overlay */}
+          {showDeleteSelectedConfirm && (
+            <div className="absolute inset-0 bg-neutral-950/80 backdrop-blur-md flex items-center justify-center p-6 z-10">
+              <div className="bg-surface-container-highest border border-white/10 rounded-2xl p-6 shadow-2xl max-w-sm w-full animate-in fade-in zoom-in duration-200">
+                <h3 className="text-lg font-bold text-on-surface mb-2">{t('playlist.remove_selected_title')}</h3>
+                <p className="text-sm text-on-surface-variant mb-6">
+                  {t('playlist.remove_selected_confirm').replace('{count}', selectedTracks.size)}
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button 
+                    onClick={() => setShowDeleteSelectedConfirm(false)}
+                    className="px-4 py-2 rounded-full text-sm font-semibold text-on-surface hover:bg-surface-container-low transition-colors"
+                  >
+                    {t('playlist.cancel')}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (onRemove) onRemove(Array.from(selectedTracks));
+                      setIsSelectMode(false);
+                      setSelectedTracks(new Set());
+                      setShowDeleteSelectedConfirm(false);
+                    }}
+                    className="px-4 py-2 rounded-full text-sm font-semibold bg-error text-on-error hover:bg-error/90 transition-colors shadow-sm"
+                  >
+                    {t('playlist.remove')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Clear All Confirmation Modal Overlay */}
           {showClearConfirm && (
             <div className="absolute inset-0 bg-neutral-950/80 backdrop-blur-md flex items-center justify-center p-6 z-10">
               <div className="bg-surface-container-highest border border-white/10 rounded-2xl p-6 shadow-2xl max-w-sm w-full animate-in fade-in zoom-in duration-200">
-                <h3 className="text-lg font-bold text-on-surface mb-2">Clear Playlist</h3>
+                <h3 className="text-lg font-bold text-on-surface mb-2">{t('playlist.clear_all_title')}</h3>
                 <p className="text-sm text-on-surface-variant mb-6">
-                  Are you sure you want to remove all {playlist.length} tracks from the playlist?
+                  {t('playlist.clear_all_confirm').replace('{count}', playlist.length)}
                 </p>
                 <div className="flex justify-end gap-3">
                   <button 
                     onClick={() => setShowClearConfirm(false)}
                     className="px-4 py-2 rounded-full text-sm font-semibold text-on-surface hover:bg-surface-container-low transition-colors"
                   >
-                    Cancel
+                    {t('playlist.cancel')}
                   </button>
                   <button 
                     onClick={() => {
@@ -200,7 +330,7 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
                     }}
                     className="px-4 py-2 rounded-full text-sm font-semibold bg-error text-on-error hover:bg-error/90 transition-colors shadow-sm"
                   >
-                    Clear All
+                    {t('playlist.remove')}
                   </button>
                 </div>
               </div>

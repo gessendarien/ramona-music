@@ -7,11 +7,18 @@ export const NotificationProvider = ({ children }) => {
   const timeoutsRef = useRef({});
 
   const removeNotification = useCallback((id) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
+    setNotifications(prev => prev.map(notification => 
+      notification.id === id ? { ...notification, isExiting: true } : notification
+    ));
+    
     if (timeoutsRef.current[id]) {
       clearTimeout(timeoutsRef.current[id]);
       delete timeoutsRef.current[id];
     }
+    
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(notification => notification.id !== id));
+    }, 300);
   }, []);
 
   const addNotification = useCallback((message, type = 'info', duration = 3000) => {

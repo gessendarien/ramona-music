@@ -3,10 +3,15 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 export default function SearchBar({ onSearch, hideIcons, query, onQueryChange, searchId = 'default' }) {
   const { t } = useLanguage();
-  const [searchSource, setSearchSource] = useState('youtube'); // 'youtube' or 'ytmusic'
+  const [topicMode, setTopicMode] = useState(false);
   const [recentSearches, setRecentSearches] = useState([]);
   const [showRecents, setShowRecents] = useState(false);
   const containerRef = useRef(null);
+
+  const executeSearch = (term, isTopic) => {
+    const finalTerm = isTopic && !term.toLowerCase().includes('topic') ? `${term} topic` : term;
+    onSearch(finalTerm, 'youtube', term);
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem(`recent_searches_${searchId}`);
@@ -41,7 +46,7 @@ export default function SearchBar({ onSearch, hideIcons, query, onQueryChange, s
     if (query && query.trim()) {
       saveRecentSearch(query);
       setShowRecents(false);
-      onSearch(query, searchSource);
+      executeSearch(query, topicMode);
     }
   };
 
@@ -49,13 +54,24 @@ export default function SearchBar({ onSearch, hideIcons, query, onQueryChange, s
     onQueryChange(term);
     saveRecentSearch(term);
     setShowRecents(false);
-    onSearch(term, searchSource);
+    executeSearch(term, topicMode);
   };
 
   const handleClearRecents = (e) => {
     e.stopPropagation();
     setRecentSearches([]);
     localStorage.removeItem(`recent_searches_${searchId}`);
+  };
+
+  const handleRemoveRecent = (term, e) => {
+    e.stopPropagation();
+    const updated = recentSearches.filter(s => s !== term);
+    setRecentSearches(updated);
+    if (updated.length > 0) {
+      localStorage.setItem(`recent_searches_${searchId}`, JSON.stringify(updated));
+    } else {
+      localStorage.removeItem(`recent_searches_${searchId}`);
+    }
   };
 
   return (
@@ -67,28 +83,28 @@ export default function SearchBar({ onSearch, hideIcons, query, onQueryChange, s
               <button 
                 type="button" 
                 onClick={() => {
-                  setSearchSource('youtube');
+                  setTopicMode(false);
                   if (query && query.trim()) {
                     saveRecentSearch(query);
-                    onSearch(query, 'youtube');
+                    executeSearch(query, false);
                   }
                 }}
-                className={`transition-colors ${searchSource === 'youtube' ? 'text-primary scale-110' : 'text-on-surface-variant/50 hover:text-on-surface-variant'}`}
-                title="Search YouTube"
+                className={`transition-colors ${!topicMode ? 'text-primary scale-110' : 'text-on-surface-variant/50 hover:text-on-surface-variant'}`}
+                title="Búsqueda normal"
               >
                 <span className="material-symbols-outlined">play_circle</span>
               </button>
               <button 
                 type="button"
                 onClick={() => {
-                  setSearchSource('ytmusic');
+                  setTopicMode(true);
                   if (query && query.trim()) {
                     saveRecentSearch(query);
-                    onSearch(query, 'ytmusic');
+                    executeSearch(query, true);
                   }
                 }}
-                className={`transition-colors ${searchSource === 'ytmusic' ? 'text-primary scale-110' : 'text-on-surface-variant/50 hover:text-on-surface-variant'}`}
-                title="Search YouTube Music"
+                className={`transition-colors ${topicMode ? 'text-primary scale-110' : 'text-on-surface-variant/50 hover:text-on-surface-variant'}`}
+                title={t('search.topic_mode')}
               >
                 <span className="material-symbols-outlined">music_note</span>
               </button>
@@ -107,6 +123,7 @@ export default function SearchBar({ onSearch, hideIcons, query, onQueryChange, s
           </button>
         </form>
 
+
         {/* Recent Searches Dropdown */}
         {showRecents && recentSearches.length > 0 && (
           <div className="absolute top-full left-1 md:left-0 right-1 md:right-auto md:w-full mt-2 bg-surface-container-high rounded-xl shadow-xl overflow-hidden z-20 border border-white/5">
@@ -121,13 +138,20 @@ export default function SearchBar({ onSearch, hideIcons, query, onQueryChange, s
             </div>
             <ul>
               {recentSearches.map((term, idx) => (
-                <li key={idx}>
+                <li key={idx} className="flex items-center hover:bg-surface-container-highest transition-colors group">
                   <button 
-                    className="w-full text-left px-6 py-3 hover:bg-surface-container-highest transition-colors flex items-center text-on-surface font-light"
+                    className="flex-grow text-left px-6 py-3 flex items-center text-on-surface font-light min-w-0"
                     onClick={() => handleRecentClick(term)}
                   >
-                    <span className="material-symbols-outlined text-on-surface-variant mr-4 text-sm">history</span>
-                    {term}
+                    <span className="material-symbols-outlined text-on-surface-variant mr-4 text-sm flex-shrink-0">history</span>
+                    <span className="truncate">{term}</span>
+                  </button>
+                  <button 
+                    onClick={(e) => handleRemoveRecent(term, e)}
+                    className="px-4 py-3 text-on-surface-variant hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                    title="Remove"
+                  >
+                    <span className="material-symbols-outlined text-sm">close</span>
                   </button>
                 </li>
               ))}

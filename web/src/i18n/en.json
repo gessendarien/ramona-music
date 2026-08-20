@@ -9,19 +9,22 @@
     "language": "Language",
     "language_desc": "Choose your preferred language for the interface.",
     "backup_dir": "Backup Directory",
-    "backup_dir_desc": "Enter the absolute path of the directory on your computer where downloaded music files will be saved.",
+    "backup_dir_desc": "Enter the absolute path of the directory on your device where backed up music files will be saved.",
     "save_path": "Save Path",
     "about": "About"
   },
   "search": {
-    "placeholder": "Search for artists, tracks, or moods on YouTube...",
+    "placeholder": "Artists, URL or playlist URL...",
     "no_results": "No results found on YouTube.",
     "error": "Network error searching YouTube. Try again.",
     "prompt": "Search for a song to start playing.",
-    "results": "Search Results"
+    "results": "Search Results",
+    "topic_mode": "Topic Mode"
   },
   "library": {
-    "local_backup": "Local Backup"
+    "local_backup": "Local Backup",
+    "remove_selected_title": "Remove Tracks",
+    "remove_selected_confirm": "Are you sure you want to delete {count} selected track(s) from your library? This will delete them from storage."
   },
   "lyrics": {
     "not_found": "Lyrics not found"
@@ -38,7 +41,8 @@
   "playlist": {
     "title": "Backup Queue",
     "empty": "Your queue is empty.",
-    "empty_desc": "Add songs from the player.",
+    "empty_desc": "Add songs to get started",
+    "already_downloaded": "Already backed up",
     "backup_track": "Backup Track",
     "backup_all": "Backup All",
     "backup_started": "Backup started for:",
@@ -47,7 +51,11 @@
     "remove_title": "Remove track?",
     "remove_confirm": "Are you sure you want to remove {track} from the playlist?",
     "cancel": "Cancel",
-    "remove": "Remove"
+    "remove": "Remove",
+    "remove_selected_title": "Remove Selected",
+    "remove_selected_confirm": "Are you sure you want to remove {count} selected track(s) from the playlist?",
+    "clear_all_title": "Clear Playlist",
+    "clear_all_confirm": "Are you sure you want to remove all {count} tracks from the playlist?"
   },
   "player": {
     "add_to_playlist": "Add to Playlist",
@@ -56,6 +64,7 @@
   },
   "common": {
     "loading": "Loading...",
-    "show_more": "Show more"
+    "show_more": "Show more",
+    "download_started": "Download started... "
   }
 }

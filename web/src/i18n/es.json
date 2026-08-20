@@ -2,26 +2,29 @@
   "nav": {
     "recommended": "Hoy",
     "player": "Buscar",
-    "library": "Librería"
+    "library": "Biblioteca"
   },
   "config": {
     "title": "Configuración",
     "language": "Idioma",
     "language_desc": "Elige tu idioma preferido para la interfaz.",
     "backup_dir": "Directorio de Backup",
-    "backup_dir_desc": "Ingresa la ruta absoluta del directorio en tu computadora donde deseas guardar los archivos de música descargados.",
+    "backup_dir_desc": "Ingresa la ruta absoluta del directorio en tu dispositivo donde deseas guardar los archivos de música respaldados.",
     "save_path": "Guardar Ruta",
     "about": "Acerca de"
   },
   "search": {
-    "placeholder": "Buscar artistas, canciones o estilos en YouTube...",
+    "placeholder": "Artistas, URL o URL de playlist...",
     "no_results": "No se encontraron resultados en YouTube.",
     "error": "Error de red al buscar en YouTube. Inténtalo de nuevo.",
     "prompt": "Busca una canción para empezar a escuchar.",
-    "results": "Resultados de búsqueda"
+    "results": "Resultados de búsqueda",
+    "topic_mode": "Modo Topic"
   },
   "library": {
-    "local_backup": "Backup Local"
+    "local_backup": "Backup Local",
+    "remove_selected_title": "Eliminar Canciones",
+    "remove_selected_confirm": "¿Estás seguro que deseas eliminar {count} canción(es) de tu biblioteca? Esto las borrará del almacenamiento."
   },
   "lyrics": {
     "not_found": "Letra no encontrada"
@@ -38,7 +41,8 @@
   "playlist": {
     "title": "Cola de Backup",
     "empty": "Tu cola está vacía.",
-    "empty_desc": "Agrega canciones desde el reproductor.",
+    "empty_desc": "Agrega canciones para empezar",
+    "already_downloaded": "Ya está respaldada",
     "backup_track": "Respaldar canción",
     "backup_all": "Respaldar Todo",
     "backup_started": "Respaldo iniciado para:",
@@ -47,7 +51,11 @@
     "remove_title": "¿Quitar canción?",
     "remove_confirm": "¿Estás seguro de que quieres quitar {track} de la lista de reproducción?",
     "cancel": "Cancelar",
-    "remove": "Eliminar"
+    "remove": "Eliminar",
+    "remove_selected_title": "Eliminar Seleccionadas",
+    "remove_selected_confirm": "¿Estás seguro que deseas eliminar {count} canción(es) seleccionada(s) de la playlist?",
+    "clear_all_title": "Limpiar Playlist",
+    "clear_all_confirm": "¿Estás seguro que deseas eliminar las {count} canciones de la playlist?"
   },
   "player": {
     "add_to_playlist": "Añadir a la lista",
@@ -56,6 +64,7 @@
   },
   "common": {
     "loading": "Cargando...",
-    "show_more": "Mostrar más"
+    "show_more": "Mostrar más",
+    "download_started": "Descarga iniciada... "
   }
 }

@@ -7,7 +7,7 @@ import LyricsModal from './LyricsModal';
 import MiniPlayer from './MiniPlayer';
 import FullScreenPlayer from './FullScreenPlayer';
 
-export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMockAction, onAddToPlaylist, onOpenPlaylist, playlist = [], libraryTracks = [], onBackupSuccess, onNext, onPrevious }) {
+export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMockAction, onAddToPlaylist, onOpenPlaylist, playlist = [], libraryTracks = [], activeDownloads = [], onBackupSuccess, onNext, onPrevious, isShuffle, onToggleShuffle, repeatMode, onToggleRepeat }) {
   const { t } = useLanguage();
   const [isBuffering, setIsBuffering] = useState(false);
   const [playedPercentage, setPlayedPercentage] = useState(0);
@@ -17,6 +17,7 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
   const [isMuted, setIsMuted] = useState(false);
   const [isFullScreenOpen, setIsFullScreenOpen] = useState(false);
   const [isTranslationActive, setIsTranslationActive] = useState(false);
+  const [actualDuration, setActualDuration] = useState(0);
   const playerRef = useRef(null);
   const lastSecondRef = useRef(0);
 
@@ -62,7 +63,16 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
             url={getTrackUrl()}
             playing={isPlaying}
             onProgress={handleProgress}
-            onEnded={() => onNext ? onNext() : setIsPlaying(false)}
+            onDuration={(duration) => setActualDuration(duration)}
+            onEnded={() => {
+              if (repeatMode === 'one' && playerRef.current) {
+                playerRef.current.seekTo(0);
+              } else if (onNext) {
+                onNext();
+              } else {
+                setIsPlaying(false);
+              }
+            }}
             onBuffer={() => setIsBuffering(true)}
             onBufferEnd={() => setIsBuffering(false)}
             onPlay={() => setIsBuffering(false)}
@@ -112,8 +122,8 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
         </div>
         <div className="flex items-center space-x-6">
           <button 
-            className="text-on-surface-variant hover:text-primary transition-colors disabled:opacity-30 disabled:cursor-default" 
-            onClick={() => currentTrack && onMockAction && onMockAction('Shuffle')}
+            className={`transition-colors disabled:opacity-30 disabled:cursor-default ${isShuffle ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`} 
+            onClick={onToggleShuffle}
             disabled={!currentTrack}
           >
             <span className="material-symbols-outlined">shuffle</span>
@@ -154,11 +164,11 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
           </button>
 
           <button 
-            className="text-on-surface-variant hover:text-primary transition-colors disabled:opacity-30 disabled:cursor-default" 
-            onClick={() => currentTrack && onMockAction && onMockAction('Repeat')}
+            className={`transition-colors disabled:opacity-30 disabled:cursor-default ${repeatMode !== 'off' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`} 
+            onClick={onToggleRepeat}
             disabled={!currentTrack}
           >
-            <span className="material-symbols-outlined">repeat</span>
+            <span className="material-symbols-outlined">{repeatMode === 'one' ? 'repeat_one' : 'repeat'}</span>
           </button>
         </div>
         <div className="hidden md:flex items-center pr-6 space-x-4 flex-1 justify-end min-w-0 pl-4">
@@ -233,6 +243,8 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
         isPlaying={isPlaying}
         onTogglePlay={togglePlay}
         progress={playedPercentage}
+        currentSeconds={currentSeconds}
+        totalSeconds={actualDuration}
         onOpenFullScreen={() => setIsFullScreenOpen(true)}
         onOpenPlaylist={onOpenPlaylist}
         playlist={playlist}
@@ -246,6 +258,7 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
           isPlaying={isPlaying}
           progress={playedPercentage}
           currentSeconds={currentSeconds}
+          totalSeconds={actualDuration}
           onTogglePlay={togglePlay}
           onClose={() => setIsFullScreenOpen(false)}
           onNext={onNext}
@@ -261,7 +274,10 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
           isTranslationActive={isTranslationActive}
           onToggleTranslation={setIsTranslationActive}
           libraryTracks={libraryTracks}
+          activeDownloads={activeDownloads}
           onBackupSuccess={onBackupSuccess}
+          playlist={playlist}
+          onAddToPlaylist={onAddToPlaylist}
         />
       )}
 
