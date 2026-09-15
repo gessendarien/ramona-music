@@ -2,7 +2,7 @@ import React from 'react';
 import VinylIcon from './VinylIcon';
 import ScrollingText from './ScrollingText';
 
-export default function MiniPlayer({ currentTrack, isPlaying, onTogglePlay, progress, currentSeconds, totalSeconds, onOpenFullScreen, onOpenPlaylist, playlist = [], onNext, onPrevious }) {
+export default function MiniPlayer({ currentTrack, isPlaying, onTogglePlay, progress, currentSeconds, totalSeconds, onOpenFullScreen, onOpenPlaylist, playlist = [], onNext, onPrevious, isOffline }) {
   const formatTime = (secs) => {
     if (!secs || isNaN(secs) || secs < 0) return '0:00';
     const m = Math.floor(secs / 60);
@@ -25,6 +25,13 @@ export default function MiniPlayer({ currentTrack, isPlaying, onTogglePlay, prog
 
   return (
     <div className="fixed bottom-0 left-0 w-full z-50 md:hidden animate-slide-up">
+      {/* Offline Banner */}
+      {isOffline && (
+        <div className="w-full bg-error text-on-error py-1 text-[10px] font-bold flex items-center justify-center shadow-md">
+          <span className="material-symbols-outlined text-[14px] mr-1">wifi_off</span>
+          Sin conexión a internet
+        </div>
+      )}
       {/* Progress Bar */}
       <div 
         className={`w-full h-[2px] bg-white/10 relative z-10 ${currentTrack ? 'cursor-pointer' : ''}`}
@@ -40,12 +47,12 @@ export default function MiniPlayer({ currentTrack, isPlaying, onTogglePlay, prog
         
         {/* Current Time on far left */}
         <div className="absolute top-0.5 left-2 text-[10px] text-on-surface-variant/70 font-mono font-medium tracking-wider select-none">
-          {formatTime(displayCurrent)}
+          {currentTrack ? formatTime(displayCurrent) : ''}
         </div>
 
         {/* Duration on far right */}
         <div className="absolute top-0.5 right-2 text-[10px] text-on-surface-variant/70 font-mono font-medium tracking-wider select-none">
-          {durationSecs > 0 ? formatTime(durationSecs) : '--:--'}
+          {currentTrack ? (durationSecs > 0 ? formatTime(durationSecs) : '--:--') : ''}
         </div>
 
         {/* Left Column: Large Thumbnail */}
@@ -66,8 +73,8 @@ export default function MiniPlayer({ currentTrack, isPlaying, onTogglePlay, prog
         <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
           {/* Top Row: Song Info */}
           <div className={`w-full overflow-hidden ${currentTrack ? 'cursor-pointer' : ''}`} onClick={() => currentTrack && onOpenFullScreen()}>
-            <ScrollingText text={currentTrack ? currentTrack.title : '---'} className="text-[13px] font-bold text-on-surface leading-tight mb-0.5" />
-            <ScrollingText text={currentTrack ? (currentTrack.artist || currentTrack.channel) : '---'} className="text-[10px] text-on-surface-variant uppercase tracking-widest" />
+            <ScrollingText text={currentTrack ? currentTrack.title : ''} className="text-[13px] font-bold text-on-surface leading-tight mb-0.5" />
+            <ScrollingText text={currentTrack ? (currentTrack.artist || currentTrack.channel) : ''} className="text-[10px] text-on-surface-variant uppercase tracking-widest" />
           </div>
 
           {/* Bottom Row: Controls */}

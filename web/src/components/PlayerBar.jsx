@@ -18,8 +18,22 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
   const [isFullScreenOpen, setIsFullScreenOpen] = useState(false);
   const [isTranslationActive, setIsTranslationActive] = useState(false);
   const [actualDuration, setActualDuration] = useState(0);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const playerRef = useRef(null);
   const lastSecondRef = useRef(0);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const getTrackUrl = () => {
     if (!currentTrack) return '';
@@ -27,6 +41,9 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
   };
 
   const togglePlay = () => {
+    if (window.isMobileNative && window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'TOGGLE_PLAYBACK' }));
+    }
     setIsPlaying(!isPlaying);
   };
 
@@ -45,19 +62,24 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
   };
 
   const handleSeek = (e) => {
-    if (!playerRef.current || !currentTrack) return;
+    if (!currentTrack) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const percentage = clickX / rect.width;
     setPlayedPercentage(percentage * 100);
-    playerRef.current.seekTo(percentage, 'fraction');
+    
+    if (window.isMobileNative && window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'SEEK', position: percentage }));
+    } else if (playerRef.current) {
+      playerRef.current.seekTo(percentage, 'fraction');
+    }
   };
 
   return (
     <>
-      {/* Hidden ReactPlayer */}
-      <div style={{ display: 'none' }}>
-        {currentTrack && (
+      {/* Hidden ReactPlayer off-screen (display:none breaks YouTube iframe API in Chromium) */}
+      <div className="absolute -top-[9999px] -left-[9999px] w-1 h-1 pointer-events-none opacity-0 overflow-hidden" aria-hidden="true">
+        {!window.isMobileNative && currentTrack && (
           <ReactPlayer 
             ref={playerRef}
             url={getTrackUrl()}
@@ -76,15 +98,42 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
             onBuffer={() => setIsBuffering(true)}
             onBufferEnd={() => setIsBuffering(false)}
             onPlay={() => setIsBuffering(false)}
+            onError={(err) => {
+              console.warn('[Player] Error al reproducir la canción:', currentTrack?.title, err);
+              setIsBuffering(false);
+              if (onNext) {
+                setTimeout(() => onNext(), 800);
+              } else {
+                setIsPlaying(false);
+              }
+            }}
             volume={volume}
             muted={isMuted}
-            config={{ file: { forceAudio: true } }}
+            config={{ 
+              file: { forceAudio: true },
+              youtube: {
+                playerVars: {
+                  autoplay: 1,
+                  controls: 0,
+                  origin: typeof window !== 'undefined' ? window.location.origin : ''
+                }
+              }
+            }}
           />
         )}
       </div>
 
       <div className="hidden md:block fixed bottom-8 left-1/2 -translate-x-1/2 w-[95%] max-w-5xl z-50">
-        <div className="bg-neutral-900/80 backdrop-blur-2xl rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col relative overflow-hidden">
+        
+        {/* Offline Banner */}
+        {isOffline && (
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-error text-on-error px-4 py-1.5 rounded-t-xl text-xs font-bold flex items-center shadow-lg transform transition-all duration-300 z-0">
+            <span className="material-symbols-outlined text-[16px] mr-2">wifi_off</span>
+            Sin conexión a internet
+          </div>
+        )}
+
+        <div className="bg-neutral-900/80 backdrop-blur-2xl rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col relative overflow-hidden z-10">
         {/* Clickable Progress Bar */}
         <div className="px-5 pt-1.5">
           <div 
@@ -250,6 +299,7 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
         playlist={playlist}
         onNext={onNext}
         onPrevious={onPrevious}
+        isOffline={isOffline}
       />
 
       {isFullScreenOpen && (
@@ -263,6 +313,7 @@ export default function PlayerBar({ currentTrack, isPlaying, setIsPlaying, onMoc
           onClose={() => setIsFullScreenOpen(false)}
           onNext={onNext}
           onPrevious={onPrevious}
+          isOffline={isOffline}
           onOpenLyrics={() => {
             setIsFullScreenOpen(false);
             setIsLyricsOpen(true);

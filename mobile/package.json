@@ -1,8 +1,8 @@
 {
   "name": "ramona-music-mobile",
-  "version": "1.0.0",
+  "version": "0.0.5",
   "description": "Ramona Music - Android App",
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "index.js",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -17,13 +17,20 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@react-navigation/bottom-tabs": "^6.6.1",
+    "@react-navigation/native": "^6.1.18",
+    "axios": "^1.19.0",
     "expo": "~49.0.15",
+    "expo-constants": "~14.4.2",
+    "expo-file-system": "~15.4.5",
+    "expo-splash-screen": "~0.20.5",
     "expo-status-bar": "~1.6.0",
     "react": "18.2.0",
     "react-native": "0.72.10",
-    "expo-splash-screen": "~0.20.5",
-    "expo-constants": "~14.4.2",
-    "react-native-webview": "13.2.2"
+    "react-native-safe-area-context": "4.6.3",
+    "react-native-screens": "~3.22.0",
+    "react-native-track-player": "^4.1.2",
+    "react-native-webview": "^13.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.23.5",

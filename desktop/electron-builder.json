@@ -1,0 +1,47 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "appId": "com.ramona.music",
+  "productName": "Ramona Music",
+  "artifactName": "RamonaMusic-v${version}.${ext}",
+  "directories": {
+    "output": "../output",
+    "buildResources": "build"
+  },
+  "files": [
+    "src/**/*",
+    "web-dist/**/*",
+    "icon.png"
+  ],
+  "extraResources": [
+    {
+      "from": "backend",
+      "to": "backend",
+      "filter": [
+        "**/*",
+        "!backups/**",
+        "!downloads/**",
+        "!test*.js"
+      ]
+    }
+  ],
+  "linux": {
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": [
+          "x64"
+        ]
+      }
+    ],
+    "icon": "build/icons/512x512.png",
+    "category": "AudioVideo",
+    "synopsis": "YouTube Music Downloader & Player",
+    "description": "Desktop application for Ramona Music",
+    "desktop": {
+      "Name": "Ramona Music",
+      "Comment": "YouTube Music Downloader & Player",
+      "Categories": "AudioVideo;Audio;Music;Player;",
+      "StartupWMClass": "ramona-music-desktop"
+    }
+  }
+}

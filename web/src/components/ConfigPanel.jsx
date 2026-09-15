@@ -7,17 +7,19 @@ const __APP_VERSION__ = packageJson.version;
 export default function ConfigPanel({ isOpen, onClose, initialConfig, onSaveConfig }) {
   const [backupPath, setBackupPath] = useState(initialConfig?.backupPath || '');
   const [downloadQuality, setDownloadQuality] = useState(initialConfig?.downloadQuality || 'highestaudio');
+  const [dataSaver, setDataSaver] = useState(initialConfig?.dataSaver || false);
   const { language, changeLanguage, t } = useLanguage();
 
   useEffect(() => {
     if (initialConfig) {
       setBackupPath(initialConfig.backupPath || '');
       setDownloadQuality(initialConfig.downloadQuality || 'highestaudio');
+      setDataSaver(initialConfig.dataSaver || false);
     }
   }, [initialConfig]);
 
   const handleSave = () => {
-    onSaveConfig({ backupPath, downloadQuality });
+    onSaveConfig({ backupPath, downloadQuality, dataSaver });
   };
 
   return (
@@ -84,6 +86,17 @@ export default function ConfigPanel({ isOpen, onClose, initialConfig, onSaveConf
                 <option value="highestaudio">Highest Audio</option>
                 <option value="lowestaudio">Lowest Audio</option>
               </select>
+
+              <div className="flex items-center justify-between mt-4 mb-2 bg-surface-container border border-surface-container-high p-3 rounded-lg">
+                <div>
+                  <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">Ahorro de datos</h3>
+                  <p className="text-xs text-on-surface-variant font-light mt-1">Baja la calidad de streaming (no afecta descargas)</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" checked={dataSaver} onChange={(e) => setDataSaver(e.target.checked)} />
+                  <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
 
               <button 
                 onClick={handleSave}

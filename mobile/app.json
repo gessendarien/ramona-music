@@ -2,15 +2,27 @@
   "expo": {
     "name": "Ramona Music",
     "slug": "ramona-music",
-    "version": "1.0.0",
+    "version": "0.0.5",
     "orientation": "portrait",
+    "icon": "../icon.png",
     "android": {
       "package": "com.ramonamusic.app",
-      "versionCode": 1,
+      "versionCode": 3,
       "permissions": [
         "android.permission.INTERNET",
-        "android.permission.ACCESS_NETWORK_STATE"
-      ]
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "android.permission.WAKE_LOCK",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
+      "usesCleartextTraffic": true
+    },
+    "androidStatusBar": {
+      "barStyle": "light-content",
+      "backgroundColor": "#0e0e0e",
+      "translucent": false
     },
     "plugins": [],
     "extra": {

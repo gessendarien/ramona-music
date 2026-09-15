@@ -13,12 +13,15 @@ buildscript {
         ndkVersion = "23.1.7779620"
     }
     repositories {
+        maven { url 'https://storage.googleapis.com/r8-releases/raw' }
         google()
         mavenCentral()
     }
     dependencies {
+        classpath('com.android.tools:r8:8.2.42')
         classpath('com.android.tools.build:gradle:7.4.2')
         classpath('com.facebook.react:react-native-gradle-plugin')
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
     }
 }
 

@@ -48,7 +48,27 @@ export const searchYouTube = async (query, source = 'youtube', limit = 20) => {
       }));
     }
   } catch (error) {
-    console.error("Error fetching search via yt-dlp:", error.message);
+    console.warn("yt-dlp search error, attempting ytsr fallback:", error.message);
+    try {
+      const fn = ytsr.GetListByKeyword || ytsr.default?.GetListByKeyword;
+      if (fn && !isUrl) {
+        const res = await fn(query, false, limit);
+        if (res && res.items) {
+          return res.items
+            .filter(item => item.id && (item.type === 'video' || item.type === undefined))
+            .map(item => ({
+              id: item.id,
+              title: item.title,
+              channel: item.channelTitle || 'Unknown',
+              duration: item.length?.simpleText || 'Unknown',
+              thumbnail: item.thumbnail?.thumbnails?.[0]?.url || `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
+              url: `https://www.youtube.com/watch?v=${item.id}`
+            }));
+        }
+      }
+    } catch (fallbackErr) {
+      console.error("Fallback search failed:", fallbackErr.message);
+    }
     return [];
   }
 };

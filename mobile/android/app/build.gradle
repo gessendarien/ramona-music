@@ -1,5 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
+apply plugin: "org.jetbrains.kotlin.android"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
@@ -86,10 +87,19 @@ android {
         applicationId 'com.ramonamusic.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 3
+        versionName "0.0.5"
 
         buildConfigField("boolean", "REACT_NATIVE_UNSTABLE_USE_RUNTIME_SCHEDULER_ALWAYS", (findProperty("reactNative.unstable_useRuntimeSchedulerAlways") ?: true).toString())
+    }
+    compileOptions {
+        // Enable core library desugaring for NewPipeExtractor Java 8+ APIs on older Android
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
     signingConfigs {
         debug {
@@ -137,6 +147,15 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+
+    // NewPipeExtractor - robust YouTube stream extraction without WebView
+    implementation("com.github.TeamNewPipe:NewPipeExtractor:v0.26.5")
+
+    // OkHttp - reliable HTTP client for background downloads
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Core library desugaring for Java 8+ APIs on older Android (needed by NewPipeExtractor)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.0.4")
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";

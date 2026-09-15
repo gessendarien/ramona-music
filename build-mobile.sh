@@ -48,21 +48,40 @@ export JAVA_HOME="$WORKSPACE/java/jdk-17.0.10+7"
 export ANDROID_HOME="$WORKSPACE/sdk"
 export PATH="$JAVA_HOME/bin:$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools"
 
-# Clean Expo prebuild
-echo "Cleaning and regenerating Android project..."
+# Run Expo prebuild (without clean to optimize build time)
+echo "Generating/updating Android project with Expo (optimized)..."
 cd mobile
-npx expo prebuild --clean --platform android
+npx expo prebuild --platform android
+cd ..
+
+# Build Web UI
+echo "Building Web UI..."
+cd web
+npm install
+npm run build
+cd ..
+
+# Copy Web UI to Android Assets
+echo "Copying Web UI to Android Assets..."
+rm -rf mobile/android/app/src/main/assets/www
+mkdir -p mobile/android/app/src/main/assets/www
+cp -R web/dist/* mobile/android/app/src/main/assets/www/
 
 # Build APK
 echo "Compiling APK..."
-cd android
+cd mobile/android
 chmod +x gradlew
-./gradlew assembleDebug
+./gradlew assembleRelease --no-daemon --parallel -PreactNativeArchitectures=arm64-v8a
 
 cd ../..
 
 echo "Copying APK to output directory..."
 mkdir -p output
-cp mobile/android/app/build/outputs/apk/debug/app-debug.apk output/RamonaMusic.apk
 
-echo "Build complete. APK is located at: $ROOT_DIR/output/RamonaMusic.apk"
+# Get version from app.json
+VERSION=$(node -e "console.log(require('./mobile/app.json').expo.version)")
+APK_NAME="RamonaMusic-v$VERSION.apk"
+
+cp mobile/android/app/build/outputs/apk/release/app-release.apk "output/$APK_NAME"
+
+echo "Build complete. APK is located at: $ROOT_DIR/output/$APK_NAME"

@@ -30,6 +30,10 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
   };
 
   const handleBackup = async (track) => {
+    if (backingUp[track.id] || activeDownloads?.some(dl => dl.trackId === track.id)) {
+      addNotification('Ya se está descargando...', 'info');
+      return;
+    }
     setBackingUp(prev => ({ ...prev, [track.id]: true }));
     try {
       await backupTrack(track);
@@ -98,7 +102,7 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
             {isSelectMode && selectedTracks.size > 0 ? (
               <button 
                 onClick={() => setShowDeleteSelectedConfirm(true)} 
-                className="p-2 hover:bg-error/20 rounded-full transition-colors text-error"
+                className="w-10 h-10 flex items-center justify-center hover:bg-error/20 rounded-full transition-colors text-error"
                 title={t('playlist.remove_selected_title')}
               >
                 <span className="material-symbols-outlined">delete</span>
@@ -106,13 +110,13 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
             ) : playlist.length > 0 && !isSelectMode && (
               <button 
                 onClick={() => setShowClearConfirm(true)} 
-                className="p-2 hover:bg-error/20 rounded-full transition-colors text-on-surface-variant hover:text-error"
+                className="w-10 h-10 flex items-center justify-center hover:bg-error/20 rounded-full transition-colors text-on-surface-variant hover:text-error"
                 title={t('playlist.clear_all_title')}
               >
                 <span className="material-symbols-outlined">delete_sweep</span>
               </button>
             )}
-            <button onClick={onClose} className="p-2 hover:bg-surface-container-low rounded-full transition-colors text-on-surface-variant hover:text-primary">
+            <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-surface-container-low rounded-full transition-colors text-on-surface-variant hover:text-primary">
               <span className="material-symbols-outlined">close</span>
             </button>
           </div>
@@ -208,7 +212,7 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
                       {isDownloaded ? (
                         <button 
                           onClick={() => addNotification(t('playlist.already_downloaded') || 'Already backed up', 'info')}
-                          className="p-2 text-primary hover:bg-primary/10 rounded-full flex-shrink-0 transition-colors cursor-pointer"
+                          className="w-10 h-10 flex items-center justify-center text-primary hover:bg-primary/10 rounded-full flex-shrink-0 transition-colors cursor-pointer"
                           title="Already Backed Up"
                         >
                           <span className="material-symbols-outlined text-sm">cloud_done</span>
@@ -216,8 +220,7 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
                       ) : (
                         <button 
                           onClick={() => handleBackup(track)}
-                          disabled={isDownloading}
-                          className="p-2 relative hover:bg-primary/20 text-on-surface-variant hover:text-primary rounded-full transition-colors flex-shrink-0"
+                          className="w-10 h-10 flex items-center justify-center relative hover:bg-primary/20 text-on-surface-variant hover:text-primary rounded-full transition-colors flex-shrink-0"
                           title={t('playlist.backup_track')}
                         >
                           {isDownloading && (
@@ -238,10 +241,10 @@ export default function PlaylistPanel({ isOpen, onClose, playlist, currentTrack,
                       )}
                       <button 
                         onClick={() => setTrackToRemove(track)}
-                        className="p-2 hover:bg-error/20 text-on-surface-variant hover:text-error rounded-full transition-colors flex-shrink-0"
+                        className="w-10 h-10 flex items-center justify-center hover:bg-error/20 text-on-surface-variant hover:text-error rounded-full transition-colors flex-shrink-0"
                         title="Remove"
                       >
-                        <span className="material-symbols-outlined text-sm">delete</span>
+                        <span className="material-symbols-outlined text-sm">close</span>
                        </button>
                     </div>
                   )}

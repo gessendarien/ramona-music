@@ -93,7 +93,7 @@ export default function MetadataModal({ isOpen, onClose, track, onSave }) {
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
       <div className="bg-surface-container-highest border border-white/10 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         <div className="p-6 border-b border-surface-container flex justify-between items-center">
-          <h2 className="text-xl font-bold text-on-surface">Edit Metadata</h2>
+          <h2 className="text-xl font-bold text-on-surface">{t('metadata.title') || 'Edit Metadata'}</h2>
           <button onClick={onClose} className="text-on-surface-variant hover:text-primary transition-colors">
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -116,7 +116,7 @@ export default function MetadataModal({ isOpen, onClose, track, onSave }) {
               className="w-full py-2 bg-surface-container-low hover:bg-primary/20 text-on-surface-variant hover:text-primary rounded-lg font-semibold transition-colors flex items-center justify-center"
             >
               <span className="material-symbols-outlined mr-2 text-sm">image_search</span>
-              {isSearching ? 'Searching...' : 'Find Cover'}
+              {isSearching ? (t('metadata.searching') || 'Searching...') : (t('metadata.find_cover') || 'Find Cover')}
             </button>
             <div className="text-center w-full mt-1">
               <input 
@@ -130,7 +130,7 @@ export default function MetadataModal({ isOpen, onClose, track, onSave }) {
                 onClick={() => fileInputRef.current?.click()} 
                 className="text-xs text-primary hover:underline cursor-pointer"
               >
-                Upload your own cover
+                {t('metadata.upload_cover') || 'Upload your own cover'}
               </span>
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function MetadataModal({ isOpen, onClose, track, onSave }) {
           {/* Right Column: Inputs */}
           <div className="flex-grow space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">Title</label>
+              <label className="block text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">{t('metadata.track_title') || 'Title'}</label>
               <input 
                 type="text" 
                 value={title} 
@@ -147,7 +147,7 @@ export default function MetadataModal({ isOpen, onClose, track, onSave }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">Artist</label>
+              <label className="block text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">{t('metadata.track_artist') || 'Artist'}</label>
               <input 
                 type="text" 
                 value={artist} 
@@ -156,7 +156,7 @@ export default function MetadataModal({ isOpen, onClose, track, onSave }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">Album</label>
+              <label className="block text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">{t('metadata.track_album') || 'Album'}</label>
               <input 
                 type="text" 
                 value={album} 
@@ -170,7 +170,7 @@ export default function MetadataModal({ isOpen, onClose, track, onSave }) {
         {/* Search Results */}
         {searchResults.length > 0 && (
           <div className="px-6 pb-6 pt-0">
-            <h3 className="text-sm font-semibold text-on-surface-variant mb-3">Select a cover:</h3>
+            <h3 className="text-sm font-semibold text-on-surface-variant mb-3">{t('metadata.select_cover') || 'Select a cover:'}</h3>
             <div className="flex space-x-4 overflow-x-auto pb-4 snap-x">
               {searchResults.map((res, i) => (
                 <div 
@@ -185,12 +185,12 @@ export default function MetadataModal({ isOpen, onClose, track, onSave }) {
           </div>
         )}
 
-        <div className="p-6 border-t border-surface-container flex justify-end space-x-4 bg-surface-container-low/50">
+        <div className="p-6 border-t border-surface-container flex justify-center space-x-4 bg-surface-container-low/50">
           <button 
             onClick={onClose}
             className="px-6 py-2.5 rounded-full font-semibold text-on-surface-variant hover:text-on-surface transition-colors"
           >
-            Cancel
+            {t('metadata.cancel') || 'Cancel'}
           </button>
           <button 
             onClick={handleSave}
@@ -202,7 +202,7 @@ export default function MetadataModal({ isOpen, onClose, track, onSave }) {
             ) : (
               <span className="material-symbols-outlined mr-2">save</span>
             )}
-            Save
+            {t('metadata.save') || 'Save'}
           </button>
         </div>
       </div>

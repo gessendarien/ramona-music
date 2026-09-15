@@ -1,0 +1,23 @@
+{
+  "name": "ramona-music-desktop",
+  "version": "0.0.4",
+  "description": "Ramona Music Desktop - Linux AppImage",
+  "main": "src/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build:appimage": "electron-builder --linux AppImage"
+  },
+  "keywords": [
+    "ramona-music",
+    "desktop",
+    "electron",
+    "appimage"
+  ],
+  "author": "Ramona Music Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  }
+}

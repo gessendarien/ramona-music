@@ -22,16 +22,36 @@
     "topic_mode": "Topic Mode"
   },
   "library": {
+    "search_placeholder": "Title or artist...",
     "local_backup": "Local Backup",
     "remove_selected_title": "Remove Tracks",
-    "remove_selected_confirm": "Are you sure you want to delete {count} selected track(s) from your library? This will delete them from storage."
+    "remove_selected_confirm": "Are you sure you want to delete {count} selected track(s) from your library? This will delete them from storage.",
+    "sort_recent": "Most Recent",
+    "sort_az": "A-Z",
+    "sort_artist": "Artist",
+    "empty_title": "Your library is empty",
+    "empty_desc": "Search for tracks and back them up to listen offline."
   },
   "lyrics": {
     "not_found": "Lyrics not found"
   },
+  "metadata": {
+    "title": "Edit Metadata",
+    "find_cover": "Find Cover",
+    "searching": "Searching...",
+    "upload_cover": "Upload your own cover",
+    "track_title": "Title",
+    "track_artist": "Artist",
+    "track_album": "Album",
+    "select_cover": "Select a cover:",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
   "home": {
-    "featured": "Featured Tracks",
-    "no_tracks": "No tracks found."
+    "featured": "Recommendations",
+    "no_tracks": "No tracks found.",
+    "empty_recommendations_title": "No recommendations yet",
+    "empty_recommendations_desc": "Download tracks to build your recommendation algorithm."
   },
   "mosaic": {
     "featured_collection": "Featured Collection",

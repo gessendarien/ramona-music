@@ -112,7 +112,7 @@ export default function SearchBar({ onSearch, hideIcons, query, onQueryChange, s
           )}
           <input 
             className="bg-transparent border-none focus:ring-0 w-full text-on-surface font-body text-[16px] placeholder:text-on-surface-variant/60 outline-none" 
-            placeholder={t('search.placeholder')}
+            placeholder={hideIcons ? (t('library.search_placeholder') || 'Título o artista...') : t('search.placeholder')}
             type="text"
             value={query || ''}
             onChange={(e) => onQueryChange(e.target.value)}
@@ -125,7 +125,7 @@ export default function SearchBar({ onSearch, hideIcons, query, onQueryChange, s
 
 
         {/* Recent Searches Dropdown */}
-        {showRecents && recentSearches.length > 0 && (
+        {showRecents && recentSearches.length > 0 && !hideIcons && (
           <div className="absolute top-full left-1 md:left-0 right-1 md:right-auto md:w-full mt-2 bg-surface-container-high rounded-xl shadow-xl overflow-hidden z-20 border border-white/5">
             <div className="flex justify-between items-center px-6 py-3 border-b border-surface-container">
               <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Recientes</span>

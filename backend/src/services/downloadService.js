@@ -6,10 +6,7 @@ import NodeID3 from 'node-id3';
 import { exec } from 'child_process';
 
 const downloads = new Map();
-const DOWNLOAD_DIR = process.env.MUSIC_PATH || path.join(process.cwd(), 'downloads');
-
-// Ensure directory exists
-fs.ensureDirSync(DOWNLOAD_DIR);
+const DOWNLOAD_DIR = process.env.MUSIC_PATH || path.join(process.cwd(), 'backups');
 
 export const downloadTrack = (url, title, artist) => {
   const id = uuidv4();

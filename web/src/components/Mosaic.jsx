@@ -2,12 +2,28 @@ import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import VinylIcon from './VinylIcon';
 
-export default function Mosaic({ tracks = [], onPlay, currentTrack, isPlaying }) {
+export default function Mosaic({ tracks = [], onPlay, currentTrack, isPlaying, isLoading = false }) {
   const { t } = useLanguage();
 
   const handlePlayClick = (track) => {
     if (onPlay && track) onPlay(track);
   };
+
+  if (!isLoading && (!tracks || tracks.length === 0)) {
+    return (
+      <section className="mb-12 md:mb-24 flex flex-col items-center justify-center py-20 px-6 text-center rounded-3xl bg-neutral-900/40 border border-neutral-800/60 shadow-inner">
+        <div className="w-16 h-16 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-4 text-rose-300">
+          <span className="material-symbols-outlined text-3xl">auto_awesome</span>
+        </div>
+        <h3 className="text-xl md:text-2xl font-bold text-neutral-100 mb-2 tracking-tight">
+          {t('home.empty_recommendations_title')}
+        </h3>
+        <p className="text-neutral-400 max-w-md text-sm md:text-base leading-relaxed">
+          {t('home.empty_recommendations_desc')}
+        </p>
+      </section>
+    );
+  }
 
   const t1 = tracks.length > 0 ? tracks[0] : null;
   const t2 = tracks.length > 1 ? tracks[1] : null;
@@ -48,7 +64,7 @@ export default function Mosaic({ tracks = [], onPlay, currentTrack, isPlaying })
             className="col-span-2 md:col-span-6 row-span-2 h-[55vh] md:h-auto relative overflow-hidden rounded-3xl bg-surface-container-low group cursor-pointer"
             onClick={() => handlePlayClick(t1)}
           >
-            <img className="absolute inset-0 w-full h-full object-cover grayscale-0 group-hover:scale-105 transition-transform duration-700" src={t1.thumbnail} alt={t1.title} />
+            <img className="absolute inset-0 w-full h-full object-cover grayscale-0 group-hover:scale-105 transition-transform duration-700" src={t1.thumbnail} alt={t1.title} referrerPolicy="no-referrer" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent md:from-black/80 md:via-transparent md:to-transparent p-6 md:p-8 flex flex-col justify-end">
               <h2 className="font-display-lg text-headline-lg-mobile md:text-5xl md:font-black tracking-tight leading-none mb-1 md:mb-4 uppercase md:normal-case text-primary line-clamp-2">{renderTitle(t1)}</h2>
               <p className="font-body-lg text-body-sm text-on-surface-variant max-w-[80%] md:max-w-sm md:font-light truncate">{t1.artist}</p>
@@ -65,7 +81,7 @@ export default function Mosaic({ tracks = [], onPlay, currentTrack, isPlaying })
             className="col-span-2 md:col-span-6 row-span-1 h-48 md:h-auto relative overflow-hidden rounded-2xl bg-surface-container-low cursor-pointer group order-2 md:order-4 shadow-xl"
             onClick={() => handlePlayClick(t4)}
           >
-            <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src={t4.thumbnail} alt={t4.title} />
+            <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src={t4.thumbnail} alt={t4.title} referrerPolicy="no-referrer" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent md:bg-gradient-to-r md:from-black/80 md:to-transparent p-4 md:p-8 flex flex-col justify-end md:justify-center">
               <h3 className="font-title-md text-title-md md:text-3xl md:font-black md:uppercase text-primary leading-tight mb-1 line-clamp-2">{renderTitle(t4)}</h3>
               <p className="font-body-sm text-body-sm text-on-surface-variant md:font-light truncate">{t4.artist}</p>
@@ -80,7 +96,7 @@ export default function Mosaic({ tracks = [], onPlay, currentTrack, isPlaying })
             className="col-span-1 md:col-span-3 row-span-1 h-40 md:h-auto relative overflow-hidden rounded-2xl bg-surface-container-low cursor-pointer group order-3 md:order-2 shadow-md"
             onClick={() => handlePlayClick(t2)}
           >
-            <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={t2.thumbnail} alt={t2.title} />
+            <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={t2.thumbnail} alt={t2.title} referrerPolicy="no-referrer" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent md:bg-black/40 md:hover:bg-black/20 transition-colors p-3 md:p-6 flex flex-col justify-end">
               <h3 className="font-title-md text-body-sm md:text-xl md:font-bold md:uppercase text-primary line-clamp-2">{renderTitle(t2)}</h3>
               <p className="md:hidden font-body-sm text-[11px] text-on-surface-variant mt-0.5 truncate">{t2.artist}</p>
@@ -95,7 +111,7 @@ export default function Mosaic({ tracks = [], onPlay, currentTrack, isPlaying })
             className="col-span-1 md:col-span-3 row-span-1 h-40 md:h-auto relative overflow-hidden rounded-2xl bg-surface-container-low cursor-pointer group order-4 md:order-3 shadow-md"
             onClick={() => handlePlayClick(t3)}
           >
-            <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={t3.thumbnail} alt={t3.title} />
+            <img className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src={t3.thumbnail} alt={t3.title} referrerPolicy="no-referrer" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent md:bg-black/40 md:hover:bg-black/20 transition-colors p-3 md:p-6 flex flex-col justify-end">
               <h3 className="font-title-md text-body-sm md:text-xl md:font-bold md:uppercase text-primary line-clamp-2">{renderTitle(t3)}</h3>
               <p className="md:hidden font-body-sm text-[11px] text-on-surface-variant mt-0.5 truncate">{t3.artist}</p>

@@ -22,16 +22,36 @@
     "topic_mode": "Modo Topic"
   },
   "library": {
+    "search_placeholder": "Título o artista...",
     "local_backup": "Backup Local",
     "remove_selected_title": "Eliminar Canciones",
-    "remove_selected_confirm": "¿Estás seguro que deseas eliminar {count} canción(es) de tu biblioteca? Esto las borrará del almacenamiento."
+    "remove_selected_confirm": "¿Estás seguro que deseas eliminar {count} canción(es) de tu biblioteca? Esto las borrará del almacenamiento.",
+    "sort_recent": "Más Recientes",
+    "sort_az": "A-Z",
+    "sort_artist": "Artista",
+    "empty_title": "Tu biblioteca está vacía",
+    "empty_desc": "Busca canciones y respáldalas para escucharlas sin conexión."
   },
   "lyrics": {
     "not_found": "Letra no encontrada"
   },
+  "metadata": {
+    "title": "Editar Metadatos",
+    "find_cover": "Buscar Portada",
+    "searching": "Buscando...",
+    "upload_cover": "Sube tu propia portada",
+    "track_title": "Título",
+    "track_artist": "Artista",
+    "track_album": "Álbum",
+    "select_cover": "Selecciona una portada:",
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
   "home": {
-    "featured": "Canciones Destacadas",
-    "no_tracks": "No se encontraron canciones."
+    "featured": "Recomendaciones",
+    "no_tracks": "No se encontraron canciones.",
+    "empty_recommendations_title": "Sin recomendaciones aún",
+    "empty_recommendations_desc": "Realiza descargas para crear tu algoritmo de recomendaciones."
   },
   "mosaic": {
     "featured_collection": "Colección Destacada",

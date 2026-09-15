@@ -13,45 +13,52 @@ export const fetchRecommendations = async (req) => {
     return cachedRecommendations;
   }
 
-  const configFilePath = path.join(process.cwd(), 'config.json');
-  let backupDir = path.join(process.cwd(), 'downloads');
+  const configDir = process.env.RAMONA_DATA_DIR || process.cwd();
+  const configFilePath = path.join(configDir, 'ramona-config.json');
+  let backupDir = process.env.MUSIC_PATH || path.join(process.cwd(), 'downloads');
   if (await fs.pathExists(configFilePath)) {
-    const config = await fs.readJson(configFilePath);
-    if (config.backupPath) backupDir = config.backupPath;
+    try {
+      const config = await fs.readJson(configFilePath);
+      if (config.backupPath) backupDir = config.backupPath;
+    } catch (e) {}
   }
 
   let downloadedArtists = [];
   let downloadedTitles = [];
   if (await fs.pathExists(backupDir)) {
-    const files = await fs.readdir(backupDir);
-    const audioFiles = files.filter(f => f.endsWith('.mp3') || f.endsWith('.m4a'));
-    
-    for (const file of audioFiles) {
-      try {
-        const filePath = path.join(backupDir, file);
-        const tags = NodeID3.read(filePath);
-        if (tags && tags.artist) {
-          downloadedArtists.push(tags.artist.split(',')[0].trim());
-          if (tags.title) downloadedTitles.push(tags.title.toLowerCase().trim());
-        } else {
-          const parts = path.parse(file).name.split(' - ');
-          if (parts.length > 1) {
-            downloadedArtists.push(parts[0].trim());
-            downloadedTitles.push(parts[1].toLowerCase().trim());
+    try {
+      const files = await fs.readdir(backupDir);
+      const audioFiles = files.filter(f => f.endsWith('.mp3') || f.endsWith('.m4a'));
+      
+      for (const file of audioFiles) {
+        try {
+          const filePath = path.join(backupDir, file);
+          const tags = NodeID3.read(filePath);
+          if (tags && tags.artist) {
+            downloadedArtists.push(tags.artist.split(',')[0].trim());
+            if (tags.title) downloadedTitles.push(tags.title.toLowerCase().trim());
+          } else {
+            const parts = path.parse(file).name.split(' - ');
+            if (parts.length > 1) {
+              downloadedArtists.push(parts[0].trim());
+              downloadedTitles.push(parts[1].toLowerCase().trim());
+            }
           }
+        } catch (e) {
+          // Ignore individual file parse errors
         }
-      } catch (e) {
-        // Ignore
       }
+    } catch (e) {
+      // Ignore directory read errors
     }
   }
 
   // Filter and deduplicate artists
   downloadedArtists = [...new Set(downloadedArtists.filter(a => a && a.toLowerCase() !== 'unknown artist'))];
 
-  // If no artists found, use a fallback popular artist
+  // If no downloads found in library, return empty array so Today prompts the user to download songs
   if (downloadedArtists.length === 0) {
-    downloadedArtists = ['Siloé', 'Vetusta Morla', 'The Weeknd'];
+    return [];
   }
 
   // Pick a random artist from the user's downloads to base recommendations on

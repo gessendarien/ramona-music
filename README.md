@@ -1,20 +1,25 @@
 # 🎵 Ramona Music - Multiplataforma
 
-Aplicación de descarga de música de YouTube para **Casa OS** (Web Docker) y **Android** (APK), con almacenamiento en Navidrome y recomendaciones musicales inteligentes.
+Aplicación de descarga de música de YouTube para **Casa OS** (Web Docker), **Android** (APK) y **Linux Desktop** (AppImage), con almacenamiento en Navidrome y recomendaciones musicales inteligentes.
 
 ## 🎯 Características
 
 - 🎵 Descarga música de YouTube y YouTube Music
-- 💾 Almacenamiento automático en Navidrome
+- 💾 Almacenamiento automático en Navidrome o carpeta local
 - 🎨 Interfaz moderna y responsiva con modo oscuro
 - 🎯 Recomendaciones musicales via Last.fm API (gratuita)
 - 📊 Seguimiento de descargas en tiempo real
 - 🔍 Búsqueda de canciones y artistas
+- 🐧 **APP de escritorio Linux en formato AppImage** (con backend integrado)
 - 📱 **APP Android compilable a APK**
 - 🏠 **Web responsiva para Casa OS**
 - 🔄 Backend compartido entre plataformas
 
 ## 📋 Requisitos
+
+### Para Linux AppImage (Desktop)
+- Node.js 18+ y npm
+- Python 3
 
 ### Para Casa OS (Web Docker)
 - Docker y Docker Compose
@@ -91,11 +96,32 @@ cd android
 # APK estará en: android/app/build/outputs/apk/release/app-release.apk
 ```
 
+### Opción 3: Linux Desktop (AppImage)
+
+Compilar un ejecutable portable `.AppImage` para cualquier distribución de Linux con backend integrado:
+
+```bash
+# Compilar todo y generar el AppImage
+./build.sh
+```
+
+El archivo generado estará disponible en:
+```bash
+output/RamonaMusic-v<version>.AppImage
+```
+
+Para ejecutarlo directamente:
+```bash
+./output/RamonaMusic-v<version>.AppImage
+```
+
+> **Nota:** El AppImage incluye el backend de Ramona Music y su interfaz web de forma autocontenida. Si ya tienes un servidor corriendo en el puerto 3001, la aplicación se conectará automáticamente a él; de lo contrario, iniciará su propio backend local transparente.
+
 ## 📁 Estructura del Proyecto
 
 ```
 ramona-music/
-├── backend/                    # API Node.js (compartida Web + Android)
+├── backend/                    # API Node.js (compartida Web + Android + Desktop)
 │   ├── src/
 │   │   ├── controllers/
 │   │   ├── services/
@@ -104,11 +130,18 @@ ramona-music/
 │   ├── package.json
 │   └── Dockerfile
 │
+├── desktop/                    # Aplicación de escritorio Linux (Electron)
+│   ├── src/
+│   │   ├── main.js             # Proceso principal y backend integrado
+│   │   └── preload.js          # Puente IPC nativo
+│   ├── electron-builder.json   # Configuración de empaquetado AppImage
+│   └── package.json
+│
 ├── shared/                     # Código compartido Web + Android
 │   ├── apiService.js           # Cliente API
 │   └── constants.js            # Constantes globales
 │
-├── web/                        # React Web (Casa OS - Docker)
+├── web/                        # React Web (Casa OS - Docker - Desktop)
 │   ├── public/
 │   ├── src/
 │   │   ├── components/
@@ -129,6 +162,10 @@ ramona-music/
 │   ├── eas.json                # Configuración compilación APK
 │   └── package.json
 │
+├── build.sh                    # Compila el AppImage para Linux -> output/
+├── build-mobile.sh             # Compila el APK para Android -> output/
+├── icon.png                    # Icono principal de la aplicación
+├── output/                     # Binarios compilados (AppImage, APK)
 ├── docker-compose.yml          # Orquestación Casa OS
 ├── README.md                   # Este archivo
 └── .env.example                # Variables de entorno

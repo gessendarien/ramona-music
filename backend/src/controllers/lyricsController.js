@@ -1,10 +1,11 @@
+
 import axios from 'axios';
 import translate from 'google-translate-api-x';
 
 export const getLyrics = async (req, res) => {
   try {
     const { title, artist } = req.query;
-    
+
     if (!title) {
       return res.status(400).json({ error: 'Title is required' });
     }
@@ -40,14 +41,14 @@ export const getLyrics = async (req, res) => {
 export const translateLyrics = async (req, res) => {
   try {
     const { text } = req.body;
-    
+
     if (!text) {
       return res.status(400).json({ error: 'Text is required' });
     }
 
     // First detect language (we can do it in one pass by translating to 'auto' but the API will just return the text. Let's just default to es, and if source is es, go to en)
     const result = await translate(text, { to: 'es' });
-    
+
     if (result.from.language.iso === 'es') {
       // It was already Spanish, translate to English
       const engResult = await translate(text, { to: 'en' });
@@ -55,7 +56,7 @@ export const translateLyrics = async (req, res) => {
     }
 
     return res.json({ translatedText: result.text, from: result.from.language.iso, to: 'es' });
-    
+
   } catch (error) {
     console.error('Error translating lyrics:', error.message);
     res.status(500).json({ error: 'Failed to translate lyrics' });

@@ -1,7 +1,8 @@
 import fs from 'fs-extra';
 import path from 'path';
 
-const configFilePath = path.join(process.cwd(), 'ramona-config.json');
+const configDir = process.env.RAMONA_DATA_DIR || process.cwd();
+const configFilePath = path.join(configDir, 'ramona-config.json');
 
 export const getConfig = async (req, res) => {
   try {
@@ -9,7 +10,7 @@ export const getConfig = async (req, res) => {
       const config = await fs.readJson(configFilePath);
       return res.json({ ...config, downloadQuality: config.downloadQuality || 'highestaudio' });
     }
-    let defaultPath = path.join(process.cwd(), 'backups');
+    let defaultPath = process.env.MUSIC_PATH || path.join(process.cwd(), 'backups');
     if (process.platform === 'android') {
       defaultPath = '/storage/emulated/0/ramona/backups/';
     }

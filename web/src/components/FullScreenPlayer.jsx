@@ -24,7 +24,8 @@ export default function FullScreenPlayer({
   isShuffle,
   onToggleShuffle,
   repeatMode,
-  onToggleRepeat
+  onToggleRepeat,
+  isOffline
 }) {
   const { t } = useLanguage();
   const { addNotification } = useNotification();
@@ -160,6 +161,10 @@ export default function FullScreenPlayer({
       addNotification(t('playlist.already_downloaded') || 'Already backed up', 'info');
       return;
     }
+    if (isDownloading) {
+      addNotification('Ya se está descargando...', 'info');
+      return;
+    }
     setIsBackingUp(true);
     try {
       await backupTrack(currentTrack);
@@ -210,7 +215,17 @@ export default function FullScreenPlayer({
     if (onSeek) onSeek(percentage);
   };
   return (
-    <div className="fixed inset-0 z-[100] bg-background md:hidden flex flex-col overflow-hidden animate-slide-up">
+    <div className="fixed inset-0 z-[100] bg-black animate-slide-up flex flex-col h-screen overflow-hidden font-sans">
+      
+      {/* Offline Banner */}
+      {isOffline && (
+        <div className="absolute top-0 left-0 w-full bg-error text-on-error py-1.5 text-xs font-bold flex items-center justify-center shadow-md z-[110]">
+          <span className="material-symbols-outlined text-[16px] mr-2">wifi_off</span>
+          Sin conexión a internet
+        </div>
+      )}
+
+      {/* Blurred Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-b from-surface-container/80 to-background z-10"></div>
         {currentTrack.thumbnail && (
@@ -316,7 +331,6 @@ export default function FullScreenPlayer({
           <button 
             className={`flex flex-col items-center justify-center transition-transform hover:scale-110 active:scale-95 ${isDownloaded ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
             onClick={handleDownload}
-            disabled={isDownloading}
           >
             <div className={`relative w-12 h-12 rounded-full flex items-center justify-center mb-1 ${isDownloaded ? 'bg-primary/20' : 'bg-surface-container-low'}`}>
               {isDownloading && (

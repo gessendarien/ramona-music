@@ -10,3 +10,11 @@ backups/
 run.log
 *.log
 .DS_Store
+desktop/web-dist/
+desktop/backend/
+desktop/build/
+desktop/icon.png
+output/
+.expo/
+env_android.sh
+

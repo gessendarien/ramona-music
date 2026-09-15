@@ -6,12 +6,13 @@ import nodeID3 from 'node-id3';
 import * as mm from 'music-metadata';
 import axios from 'axios';
 
-const configFilePath = path.join(process.cwd(), 'ramona-config.json');
+const configDir = process.env.RAMONA_DATA_DIR || process.cwd();
+const configFilePath = path.join(configDir, 'ramona-config.json');
 
 export const activeDownloads = new Map();
 
 const getBackupPath = async () => {
-  let defaultPath = path.join(process.cwd(), 'downloads');
+  let defaultPath = process.env.MUSIC_PATH || path.join(process.cwd(), 'backups');
   if (process.platform === 'android') {
     defaultPath = '/storage/emulated/0/ramona/backups/';
   }
@@ -60,8 +61,10 @@ export const backupTrack = async (req, res) => {
 
     const safeTitle = sanitize(title || trackId);
     const safeArtist = sanitize(artist || 'Unknown Artist');
-    const outputPathTemplate = path.join(backupDir, `${safeArtist} - ${safeTitle}.%(ext)s`);
-    const expectedPathMP3 = path.join(backupDir, `${safeArtist} - ${safeTitle}.mp3`);
+    const expectedFilename = `${safeArtist} - ${safeTitle}.mp3`;
+    const finalPath = path.join(backupDir, expectedFilename);
+    const tempPathTemplate = path.join(backupDir, `${trackId}.%(ext)s`);
+    const tempPathMP3 = path.join(backupDir, `${trackId}.mp3`);
 
     if (activeDownloads.has(trackId)) {
       return res.status(409).json({ error: 'Already downloading this track' });
@@ -69,7 +72,7 @@ export const backupTrack = async (req, res) => {
 
     const url = `https://www.youtube.com/watch?v=${trackId}`;
 
-    res.json({ success: true, message: 'Backup started', filename: `${safeArtist} - ${safeTitle}.mp3` });
+    res.json({ success: true, message: 'Backup started', filename: expectedFilename });
 
     activeDownloads.set(trackId, { trackId, title, artist, status: 'downloading', progress: 0 });
 
@@ -77,7 +80,7 @@ export const backupTrack = async (req, res) => {
       extractAudio: true,
       audioFormat: 'mp3',
       audioQuality: 0,
-      output: outputPathTemplate,
+      output: tempPathTemplate,
       noPlaylist: true,
       embedThumbnail: true,
       extractorArgs: 'youtube:player-client=ios,android'
@@ -99,16 +102,13 @@ export const backupTrack = async (req, res) => {
 
     subprocess.then(() => {
       console.log(`Backup completed for ${trackId}`);
-      activeDownloads.delete(trackId);
       
-      // Write ID3 tags immediately after download to save title, artist, and original YouTube ID
-      const expectedPath = path.join(backupDir, `${safeArtist} - ${safeTitle}.mp3`);
-      setTimeout(() => {
+      setTimeout(async () => {
         try {
-          if (fs.existsSync(expectedPath)) {
-            const existingTags = nodeID3.read(expectedPath) || {};
+          if (await fs.pathExists(tempPathMP3)) {
+            // Write ID3 tags to the temp file first
+            const existingTags = nodeID3.read(tempPathMP3) || {};
             const userDefinedText = existingTags.userDefinedText || [];
-            // Remove any existing youtube_id tag if present
             const filteredUDT = userDefinedText.filter(tag => tag.description !== 'youtube_id');
             filteredUDT.push({ description: 'youtube_id', value: trackId });
 
@@ -118,18 +118,21 @@ export const backupTrack = async (req, res) => {
               artist: artist || 'Unknown Artist',
               userDefinedText: filteredUDT
             };
-            nodeID3.update(updatedTags, expectedPath);
+            nodeID3.update(updatedTags, tempPathMP3);
+            
+            // Rename to final path
+            await fs.rename(tempPathMP3, finalPath);
           }
         } catch (e) {
-          console.error(`Failed to write ID3 tags for ${trackId}:`, e);
+          console.error(`Failed to process downloaded file for ${trackId}:`, e);
+        } finally {
+          activeDownloads.delete(trackId);
         }
-      }, 500); // Small delay to ensure yt-dlp/ffmpeg completely released the file
+      }, 500);
     }).catch((err) => {
       console.error(`Backup error for ${trackId}:`, err.message);
       activeDownloads.delete(trackId);
-      // Try to clean up
-      const expectedPath = path.join(backupDir, `${safeArtist} - ${safeTitle}.mp3`);
-      fs.remove(expectedPath).catch(e => console.error(e));
+      fs.remove(tempPathMP3).catch(e => console.error(e));
     });
 
   } catch (error) {
